@@ -1,0 +1,4977 @@
+--=========================================================
+-- AXIOM V1.19.1 - BOOT SAFE
+-- CHẠY TRỰC TIẾP TOÀN BỘ FILE TRONG EXECUTOR.
+-- Không phụ thuộc loader/link ngoài.
+--=========================================================
+
+print("[AXIOM] BOOT START")
+
+--=========================================================
+-- AXIOM BLOX FRUITS HUB - UI SHELL ONLY
+-- Không có chức năng farm / quest / combat / teleport
+--=========================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local oldGui = PlayerGui:FindFirstChild("AxiomBloxHub")
+if oldGui then
+    oldGui:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AxiomBloxHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = false
+ScreenGui.Enabled = true
+ScreenGui.DisplayOrder = 999999
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
+
+print("[AXIOM] GUI CREATED")
+
+--=========================================================
+-- MAIN WINDOW
+--=========================================================
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 560, 0, 360)
+Main.Position = UDim2.new(0.5, -280, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+Main.BorderSizePixel = 0
+Main.Visible = true
+Main.Active = true
+Main.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = Main
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(65, 65, 75)
+MainStroke.Thickness = 1
+MainStroke.Parent = Main
+
+--=========================================================
+-- TOP BAR
+--=========================================================
+
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 45)
+TopBar.BackgroundColor3 = Color3.fromRGB(26, 26, 31)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = Main
+
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 12)
+TopCorner.Parent = TopBar
+
+local TopFix = Instance.new("Frame")
+TopFix.Size = UDim2.new(1, 0, 0, 12)
+TopFix.Position = UDim2.new(0, 0, 1, -12)
+TopFix.BackgroundColor3 = TopBar.BackgroundColor3
+TopFix.BorderSizePixel = 0
+TopFix.Parent = TopBar
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -100, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "AXIOM | BLOX FRUITS"
+Title.TextColor3 = Color3.fromRGB(240, 240, 245)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TopBar
+
+--=========================================================
+-- MINIMIZE + CLOSE
+--=========================================================
+
+local Minimize = Instance.new("TextButton")
+Minimize.Size = UDim2.new(0, 35, 0, 30)
+Minimize.Position = UDim2.new(1, -78, 0, 7)
+Minimize.BackgroundColor3 = Color3.fromRGB(40, 40, 47)
+Minimize.Text = "—"
+Minimize.TextColor3 = Color3.fromRGB(230, 230, 235)
+Minimize.TextSize = 18
+Minimize.Font = Enum.Font.GothamBold
+Minimize.BorderSizePixel = 0
+Minimize.Parent = TopBar
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 7)
+MinCorner.Parent = Minimize
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 35, 0, 30)
+Close.Position = UDim2.new(1, -40, 0, 7)
+Close.BackgroundColor3 = Color3.fromRGB(125, 45, 45)
+Close.Text = "X"
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Close.TextSize = 14
+Close.Font = Enum.Font.GothamBold
+Close.BorderSizePixel = 0
+Close.Parent = TopBar
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 7)
+CloseCorner.Parent = Close
+
+--=========================================================
+-- RESCUE BUTTON
+-- Luôn hiện để khôi phục menu nếu bị ẩn/off-screen.
+--=========================================================
+
+local RescueButton = Instance.new("TextButton")
+RescueButton.Name = "AxiomRescue"
+RescueButton.Size = UDim2.new(0, 54, 0, 54)
+RescueButton.Position = UDim2.new(0, 12, 0.5, -27)
+RescueButton.BackgroundColor3 = Color3.fromRGB(35, 165, 125)
+RescueButton.Text = "AX"
+RescueButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+RescueButton.TextSize = 16
+RescueButton.Font = Enum.Font.GothamBold
+RescueButton.BorderSizePixel = 0
+RescueButton.ZIndex = 10000
+RescueButton.Parent = ScreenGui
+
+local RescueCorner = Instance.new("UICorner")
+RescueCorner.CornerRadius = UDim.new(1, 0)
+RescueCorner.Parent = RescueButton
+
+RescueButton.MouseButton1Click:Connect(function()
+    ScreenGui.Enabled = true
+    Main.Visible = true
+    Main.Size = UDim2.new(0, 560, 0, 360)
+    Main.Position = UDim2.new(0.5, -280, 0.5, -180)
+end)
+
+--=========================================================
+-- SIDEBAR + CONTENT
+--=========================================================
+
+local Sidebar = Instance.new("ScrollingFrame")
+Sidebar.Size = UDim2.new(0, 150, 1, -45)
+Sidebar.Position = UDim2.new(0, 0, 0, 45)
+Sidebar.BackgroundColor3 = Color3.fromRGB(23, 23, 28)
+Sidebar.BorderSizePixel = 0
+Sidebar.ScrollBarThickness = 3
+Sidebar.ScrollBarImageColor3 = Color3.fromRGB(90, 90, 105)
+Sidebar.CanvasSize = UDim2.new(0, 0, 0, 0)
+Sidebar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Sidebar.ScrollingDirection = Enum.ScrollingDirection.Y
+Sidebar.Parent = Main
+
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, -150, 1, -45)
+Content.Position = UDim2.new(0, 150, 0, 45)
+Content.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Content.BorderSizePixel = 0
+Content.Parent = Main
+
+local sideLayout = Instance.new("UIListLayout")
+sideLayout.Padding = UDim.new(0, 6)
+sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sideLayout.Parent = Sidebar
+
+local sidePadding = Instance.new("UIPadding")
+sidePadding.PaddingTop = UDim.new(0, 10)
+sidePadding.PaddingLeft = UDim.new(0, 4)
+sidePadding.PaddingRight = UDim.new(0, 4)
+sidePadding.PaddingBottom = UDim.new(0, 10)
+sidePadding.Parent = Sidebar
+
+--=========================================================
+-- EMPTY TAB SYSTEM
+-- Chỉ giữ giao diện, không có chức năng
+--=========================================================
+
+local tabs = {}
+local tabButtons = {}
+
+local function createTab(name)
+    local page = Instance.new("Frame")
+    page.Name = name .. "Page"
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = Content
+
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -16, 0, 38)
+    button.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+    button.Text = name
+    button.TextColor3 = Color3.fromRGB(205, 205, 215)
+    button.TextSize = 14
+    button.Font = Enum.Font.GothamMedium
+    button.BorderSizePixel = 0
+    button.Parent = Sidebar
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+
+    tabs[name] = page
+    tabButtons[name] = button
+
+    return page
+end
+
+local function switchTab(tabName)
+    for name, page in pairs(tabs) do
+        page.Visible = (name == tabName)
+
+        if tabButtons[name] then
+            TweenService:Create(
+                tabButtons[name],
+                TweenInfo.new(0.15),
+                {
+                    BackgroundColor3 = name == tabName
+                        and Color3.fromRGB(52, 52, 63)
+                        or Color3.fromRGB(30, 30, 36)
+                }
+            ):Play()
+        end
+    end
+end
+
+local FarmPage = createTab("Farm")
+local QuestPage = createTab("Quest")
+local CombatPage = createTab("Combat")
+local StatsPage = createTab("Stats")
+local FruitPage = createTab("Fruit")
+local StylePage = createTab("Võ")
+local TeleportPage = createTab("Teleport")
+local SettingsPage = createTab("Settings")
+
+for name, button in pairs(tabButtons) do
+    button.MouseButton1Click:Connect(function()
+        switchTab(name)
+    end)
+end
+
+switchTab("Farm")
+
+print("[AXIOM] UI TABS READY")
+
+--=========================================================
+-- FARM V1.2: AUTO QUEST + FARM THEO LEVEL
+-- 1 toggle: tự nhận quest -> tìm đúng mob -> đứng trên đầu -> đánh
+--=========================================================
+
+local BootBadge = Instance.new("TextLabel")
+BootBadge.Name = "BootBadge"
+BootBadge.Size = UDim2.new(0, 135, 0, 18)
+BootBadge.Position = UDim2.new(1, -145, 1, -26)
+BootBadge.BackgroundTransparency = 1
+BootBadge.Text = "AXIOM UI: READY"
+BootBadge.TextColor3 = Color3.fromRGB(90, 210, 150)
+BootBadge.TextSize = 11
+BootBadge.Font = Enum.Font.GothamBold
+BootBadge.TextXAlignment = Enum.TextXAlignment.Left
+BootBadge.ZIndex = 5
+BootBadge.Parent = FarmPage
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+--=========================================================
+-- NON-BLOCKING READY WATCH V1.22.1
+-- UI + các nút được tạo ngay, không chặn main thread.
+--=========================================================
+
+local GameReady = false
+
+task.spawn(function()
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+
+    while ScreenGui.Parent do
+        local remotes =
+            ReplicatedStorage:FindFirstChild("Remotes")
+
+        if remotes
+            and remotes:FindFirstChild("CommF_")
+            and Player:FindFirstChild("Backpack") then
+
+            GameReady = true
+            print("[AXIOM] GAME READY")
+            return
+        end
+
+        task.wait(0.25)
+    end
+end)
+
+--=========================================================
+-- AXIOM V1.9 - AUTO REDEEM + AUTO STATS
+--=========================================================
+
+local UtilityState = {
+    AutoRedeem = true,
+    RedeemRunning = false,
+    RedeemedThisSession = false,
+
+    AutoStats = false,
+
+    -- Stat được chọn trực tiếp bằng nút riêng.
+    SelectedStat = "Melee",
+
+    StatBatch = 9,
+    StatDelay = 0.18,
+
+    -- Xóa/ẩn notification của game, không đụng UI AXIOM.
+    HideNotifications = false,
+
+    -- Fast Boot chỉ tối ưu thời gian khởi tạo SCRIPT.
+    -- Không thể làm ứng dụng Roblox mở nhanh hơn ở cấp hệ điều hành.
+    FastBoot = true,
+
+    -- Fruit system
+    AutoRandomFruit = false,
+    AutoStoreFruit = false,
+    AutoPickupFruit = false,
+}
+
+-- Toàn bộ code đang hoạt động (Aug 2026).
+-- CÓ code Stat Reset/Refund theo yêu cầu của ông chủ.
+-- Code đã dùng rồi / hết hạn sẽ chỉ bị server từ chối.
+local ALL_REDEEM_CODES = {
+    "EASTEREXP",
+    "LIGHTNINGABUSE",
+
+    -- Stat Refund / Reset
+    "KITT_RESET",
+    "SUB2GAMERROBOT_RESET1",
+    "SUB2UNCLEKIZARU",
+
+    -- EXP / Beli / Title
+    "SUB2OFFICIALNOOBIE",
+    "AXIORE",
+    "BIGNEWS",
+    "BLUXXY",
+    "CHANDLER",
+    "ENYU_IS_PRO",
+    "FUDD10",
+    "FUDD10_V2",
+    "JCWK",
+    "KITTGAMING",
+    "MAGICBUS",
+    "STARCODEHEO",
+    "STRAWHATMAINE",
+    "SUB2CAPTAINMAUI",
+    "SUB2DAIGROCK",
+    "SUB2FER999",
+    "SUB2GAMERROBOT_EXP1",
+    "SUB2NOOBMASTER123",
+    "TANTAIGAMING",
+    "THEGREATACE",
+}
+
+local function makeUtilityPanel(parent, titleText, height)
+    local panel = Instance.new("Frame")
+    panel.Size = UDim2.new(1, -24, 0, height)
+    panel.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+    panel.BorderSizePixel = 0
+    panel.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 9)
+    corner.Parent = panel
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -24, 0, 28)
+    title.Position = UDim2.new(0, 12, 0, 7)
+    title.BackgroundTransparency = 1
+    title.Text = titleText
+    title.TextColor3 = Color3.fromRGB(235, 235, 240)
+    title.TextSize = 15
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = panel
+
+    return panel
+end
+
+local function makeUtilityToggle(parent, position)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 62, 0, 28)
+    button.Position = position
+    button.BackgroundColor3 = Color3.fromRGB(65, 65, 75)
+    button.Text = "OFF"
+    button.TextColor3 = Color3.fromRGB(245, 245, 245)
+    button.TextSize = 12
+    button.Font = Enum.Font.GothamBold
+    button.BorderSizePixel = 0
+    button.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = button
+
+    return button
+end
+
+local function setUtilityToggle(button, enabled)
+    button.Text = enabled and "ON" or "OFF"
+
+    TweenService:Create(
+        button,
+        TweenInfo.new(0.15),
+        {
+            BackgroundColor3 = enabled
+                and Color3.fromRGB(63, 122, 82)
+                or Color3.fromRGB(65, 65, 75)
+        }
+    ):Play()
+end
+
+local function makeUtilityButton(parent, textValue, position, size)
+    local button = Instance.new("TextButton")
+    button.Size = size
+    button.Position = position
+    button.BackgroundColor3 = Color3.fromRGB(43, 43, 52)
+    button.Text = textValue
+    button.TextColor3 = Color3.fromRGB(230, 230, 235)
+    button.TextSize = 12
+    button.Font = Enum.Font.GothamMedium
+    button.BorderSizePixel = 0
+    button.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = button
+
+    return button
+end
+
+--=========================================================
+-- FRUIT SYSTEM V1.11
+-- Auto Random Fruit + Auto Store + Auto Pickup
+--=========================================================
+
+local FruitState = {
+    -- Busy chỉ dành cho thao tác CÓ DI CHUYỂN (pickup),
+    -- để Farm biết lúc nào phải nhường quyền điều khiển nhân vật.
+    Busy = false,
+
+    RandomBusy = false,
+    StoreBusy = false,
+    PickupBusy = false,
+
+    -- Chặn Auto Store vài giây sau Random để thấy fruit thật.
+    StoreBlockUntil = 0,
+
+    -- Theo dõi fruit thật sự vừa vào Backpack.
+    AcquiredSerial = 0,
+    LastAcquiredName = nil,
+
+    RandomInterval = 1.0,
+    StoreInterval = 1.2,
+    PickupInterval = 0.45,
+
+    LastRandom = 0,
+    LastStore = 0,
+    LastPickup = 0,
+
+    FruitCatalog = nil,
+    FruitCatalogAt = 0,
+
+    StoredTools = setmetatable({}, {__mode = "k"}),
+}
+
+local function getFruitCommRemote()
+    local remotes =
+        ReplicatedStorage:FindFirstChild("Remotes")
+        or ReplicatedStorage:WaitForChild("Remotes", 8)
+
+    if not remotes then
+        return nil
+    end
+
+    -- Current Blox Fruits remote.
+    return remotes:FindFirstChild("CommF_")
+        or remotes:WaitForChild("CommF_", 8)
+end
+
+local function invokeCommF(...)
+    local remote = getFruitCommRemote()
+
+    if not remote then
+        return false, "COMM_F_NOT_FOUND"
+    end
+
+    local args = table.pack(...)
+
+    local ok, result = pcall(function()
+        return remote:InvokeServer(
+            table.unpack(args, 1, args.n)
+        )
+    end)
+
+    if not ok then
+        return false, tostring(result)
+    end
+
+    return true, result
+end
+
+local function normalizeFruitToken(value)
+    value = string.lower(tostring(value or ""))
+
+    value = value:gsub("%s+[Ff][Rr][Uu][Ii][Tt]$", "")
+    value = value:gsub("fruit$", "")
+    value = value:gsub("[^%w]", "")
+
+    return value
+end
+
+local function looksLikeFruitTool(tool)
+    if not tool or not tool:IsA("Tool") then
+        return false
+    end
+
+    -- Đây là dấu hiệu đáng tin cậy hơn trong Blox Fruits hiện tại.
+    -- Fruit Tool có child/object tên "Fruit".
+    if tool:FindFirstChild("Fruit") then
+        return true
+    end
+
+    local lowerName = string.lower(tool.Name)
+
+    -- Fallback cho executor/client load chậm child Fruit.
+    if lowerName:find("fruit", 1, true) then
+        return true
+    end
+
+    local okAttr, isFruit = pcall(function()
+        return tool:GetAttribute("Fruit")
+            or tool:GetAttribute("BloxFruit")
+    end)
+
+    if okAttr and isFruit then
+        return true
+    end
+
+    return false
+end
+
+local function getFruitCatalog(force)
+    local now = os.clock()
+
+    if not force
+        and FruitState.FruitCatalog
+        and now - FruitState.FruitCatalogAt < 90 then
+
+        return FruitState.FruitCatalog
+    end
+
+    local remote = getFruitCommRemote()
+    if not remote then
+        return FruitState.FruitCatalog
+    end
+
+    local ok, result = pcall(function()
+        return remote:InvokeServer("GetFruits")
+    end)
+
+    if ok and type(result) == "table" then
+        FruitState.FruitCatalog = result
+        FruitState.FruitCatalogAt = now
+    end
+
+    return FruitState.FruitCatalog
+end
+
+local function resolveStoredFruitName(tool)
+    if not tool then
+        return nil
+    end
+
+    local toolToken = normalizeFruitToken(tool.Name)
+
+    if toolToken == "" then
+        return nil
+    end
+
+    local catalog = getFruitCatalog(false)
+
+    if type(catalog) == "table" then
+        local bestName = nil
+        local bestScore = -1
+
+        for _, fruit in pairs(catalog) do
+            local internalName = nil
+
+            if type(fruit) == "table" then
+                internalName =
+                    fruit.Name
+                    or fruit.name
+                    or fruit.FruitName
+            elseif type(fruit) == "string" then
+                internalName = fruit
+            end
+
+            if internalName then
+                local internalToken =
+                    normalizeFruitToken(internalName)
+
+                local score = -1
+
+                if internalToken == toolToken then
+                    score = 1000
+                elseif internalToken:find(toolToken, 1, true) then
+                    score = #toolToken
+                elseif toolToken:find(internalToken, 1, true) then
+                    score = #internalToken
+                end
+
+                if score > bestScore then
+                    bestScore = score
+                    bestName = internalName
+                end
+            end
+        end
+
+        if bestName then
+            return bestName
+        end
+    end
+
+    -- Fallback cho tên "Rocket Fruit" -> "Rocket-Rocket".
+    local display = tool.Name:gsub("%s+[Ff][Rr][Uu][Ii][Tt]$", "")
+    display = display:gsub("^%s+", ""):gsub("%s+$", "")
+
+    if display ~= "" then
+        return display .. "-" .. display
+    end
+
+    return nil
+end
+
+local function getOwnedFruitTools()
+    local result = {}
+
+    local backpack = Player:FindFirstChild("Backpack")
+    local character = Player.Character
+
+    local function scan(container)
+        if not container then
+            return
+        end
+
+        for _, obj in ipairs(container:GetChildren()) do
+            if looksLikeFruitTool(obj) then
+                table.insert(result, obj)
+            end
+        end
+    end
+
+    scan(backpack)
+    scan(character)
+
+    return result
+end
+
+local function storeFruitTool(tool)
+    if not tool
+        or not tool.Parent
+        or FruitState.StoredTools[tool] then
+
+        return false, "SKIP"
+    end
+
+    local remote = getFruitCommRemote()
+    if not remote then
+        return false, "NO_COMMF"
+    end
+
+    local internalName = resolveStoredFruitName(tool)
+
+    if not internalName then
+        return false, "UNKNOWN_FRUIT_NAME"
+    end
+
+    local ok, result = pcall(function()
+        return remote:InvokeServer(
+            "StoreFruit",
+            internalName,
+            tool
+        )
+    end)
+
+    if ok and result == true then
+        FruitState.StoredTools[tool] = true
+        return true, internalName
+    end
+
+    if ok then
+        return false,
+            "STORE_SERVER: " ..
+            tostring(result)
+    end
+
+    return false, tostring(result)
+end
+
+local function storeAllOwnedFruits()
+    if FruitState.StoreBusy then
+        return 0
+    end
+
+    FruitState.StoreBusy = true
+
+    local stored = 0
+    local tools = getOwnedFruitTools()
+
+    for _, tool in ipairs(tools) do
+        local ok = storeFruitTool(tool)
+
+        if ok then
+            stored += 1
+        end
+
+        task.wait(0.08)
+    end
+
+    FruitState.StoreBusy = false
+    return stored
+end
+
+local function getDirectCommF()
+    local remotes =
+        ReplicatedStorage:FindFirstChild("Remotes")
+
+    if not remotes then
+        return nil
+    end
+
+    return remotes:FindFirstChild("CommF_")
+end
+
+local function getCurrentBeli()
+    local data = Player:FindFirstChild("Data")
+    local beli = data and data:FindFirstChild("Beli")
+
+    if beli then
+        return tonumber(beli.Value) or 0
+    end
+
+    return 0
+end
+
+local function randomFruitOnce()
+    local remote =
+        ReplicatedStorage
+        :WaitForChild("Remotes")
+        :WaitForChild("CommF_")
+
+    -- SOURCE-EXACT:
+    -- FireRemote("Cousin", "Buy")
+    -- tương đương CommF_:InvokeServer("Cousin", "Buy")
+    local ok, result = pcall(function()
+        return remote:InvokeServer(
+            "Cousin",
+            "Buy"
+        )
+    end)
+
+    if not ok then
+        return false,
+            "REMOTE ERROR: " ..
+            tostring(result)
+    end
+
+    return true,
+        "RETURN=" ..
+        tostring(result) ..
+        " | BELI=" ..
+        tostring(getCurrentBeli())
+end
+
+local function findWorldFruitTool()
+    local root = Player.Character
+        and Player.Character:FindFirstChild("HumanoidRootPart")
+
+    local nearest = nil
+    local nearestHandle = nil
+    local nearestDistance = math.huge
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Tool")
+            and looksLikeFruitTool(obj) then
+
+            -- Không lấy fruit đã nằm trong player inventory.
+            if not obj:IsDescendantOf(Player) then
+                local handle =
+                    obj:FindFirstChild("Handle")
+                    or obj:FindFirstChildWhichIsA("BasePart", true)
+
+                if handle and handle:IsA("BasePart") then
+                    local distance = 0
+
+                    if root then
+                        distance =
+                            (handle.Position - root.Position).Magnitude
+                    end
+
+                    if distance < nearestDistance then
+                        nearest = obj
+                        nearestHandle = handle
+                        nearestDistance = distance
+                    end
+                end
+            end
+        end
+    end
+
+    return nearest, nearestHandle, nearestDistance
+end
+
+local function pickupFruitTool(tool, handle)
+    if not tool or not handle then
+        return false, "NO_FRUIT"
+    end
+
+    local character = Player.Character
+    local humanoid = character
+        and character:FindFirstChildOfClass("Humanoid")
+    local root = character
+        and character:FindFirstChild("HumanoidRootPart")
+
+    if not character or not humanoid or not root then
+        return false, "NO_CHARACTER"
+    end
+
+    if FruitState.PickupBusy then
+        return false, "PICKUP_BUSY"
+    end
+
+    FruitState.PickupBusy = true
+    FruitState.Busy = true
+
+    local oldCFrame = root.CFrame
+    local picked = false
+
+    -- Ưu tiên executor touch API nếu có.
+    if type(firetouchinterest) == "function" then
+        pcall(function()
+            firetouchinterest(
+                root,
+                handle,
+                0
+            )
+
+            task.wait(0.05)
+
+            firetouchinterest(
+                root,
+                handle,
+                1
+            )
+
+            picked = true
+        end)
+    end
+
+    -- Fallback: teleport sát fruit một khoảng rất ngắn.
+    if not picked then
+        pcall(function()
+            root.CFrame =
+                handle.CFrame * CFrame.new(0, 1.5, 0)
+
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+        end)
+
+        task.wait(0.18)
+    end
+
+    -- Chờ fruit vào Backpack.
+    local timeout = os.clock() + 1.25
+
+    while tool.Parent
+        and not tool:IsDescendantOf(Player)
+        and os.clock() < timeout do
+
+        task.wait(0.05)
+    end
+
+    if tool:IsDescendantOf(Player) then
+        picked = true
+    end
+
+    -- Trả về vị trí cũ nếu vẫn còn nhân vật.
+    pcall(function()
+        if root.Parent then
+            root.CFrame = oldCFrame
+        end
+    end)
+
+    FruitState.PickupBusy = false
+    FruitState.Busy = false
+
+    if picked then
+        return true, "PICKED"
+    end
+
+    return false, "PICKUP_TIMEOUT"
+end
+
+--=========================================================
+-- FRUIT TAB UI
+--=========================================================
+
+local FruitScroll = Instance.new("ScrollingFrame")
+FruitScroll.Size = UDim2.new(1, 0, 1, 0)
+FruitScroll.BackgroundTransparency = 1
+FruitScroll.BorderSizePixel = 0
+FruitScroll.ScrollBarThickness = 4
+FruitScroll.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 90)
+FruitScroll.CanvasSize = UDim2.new(0, 0, 0, 420)
+FruitScroll.Parent = FruitPage
+
+local FruitPadding = Instance.new("UIPadding")
+FruitPadding.PaddingTop = UDim.new(0, 12)
+FruitPadding.PaddingLeft = UDim.new(0, 12)
+FruitPadding.PaddingRight = UDim.new(0, 12)
+FruitPadding.PaddingBottom = UDim.new(0, 12)
+FruitPadding.Parent = FruitScroll
+
+local FruitLayout = Instance.new("UIListLayout")
+FruitLayout.Padding = UDim.new(0, 10)
+FruitLayout.SortOrder = Enum.SortOrder.LayoutOrder
+FruitLayout.Parent = FruitScroll
+
+FruitLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    FruitScroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        FruitLayout.AbsoluteContentSize.Y + 24
+    )
+end)
+
+local RandomPanel = makeUtilityPanel(
+    FruitScroll,
+    "Random Fruit",
+    126
+)
+
+local RandomStatus = Instance.new("TextLabel")
+RandomStatus.Size = UDim2.new(1, -100, 0, 42)
+RandomStatus.Position = UDim2.new(0, 12, 0, 39)
+RandomStatus.BackgroundTransparency = 1
+RandomStatus.Text = "Cousin/Buy • Auto mỗi 1s"
+RandomStatus.TextColor3 = Color3.fromRGB(165, 165, 175)
+RandomStatus.TextSize = 11
+RandomStatus.Font = Enum.Font.Gotham
+RandomStatus.TextWrapped = true
+RandomStatus.TextXAlignment = Enum.TextXAlignment.Left
+RandomStatus.TextYAlignment = Enum.TextYAlignment.Top
+RandomStatus.Parent = RandomPanel
+
+local RandomToggle = makeUtilityToggle(
+    RandomPanel,
+    UDim2.new(1, -74, 0, 40)
+)
+
+local RandomNow = makeUtilityButton(
+    RandomPanel,
+    "Random ngay",
+    UDim2.new(0, 12, 0, 86),
+    UDim2.new(0, 125, 0, 30)
+)
+
+local StorePanel = makeUtilityPanel(
+    FruitScroll,
+    "Auto Store Fruit",
+    126
+)
+
+local StoreStatus = Instance.new("TextLabel")
+StoreStatus.Size = UDim2.new(1, -100, 0, 42)
+StoreStatus.Position = UDim2.new(0, 12, 0, 39)
+StoreStatus.BackgroundTransparency = 1
+StoreStatus.Text = "Tự store fruit trong Backpack."
+StoreStatus.TextColor3 = Color3.fromRGB(165, 165, 175)
+StoreStatus.TextSize = 11
+StoreStatus.Font = Enum.Font.Gotham
+StoreStatus.TextWrapped = true
+StoreStatus.TextXAlignment = Enum.TextXAlignment.Left
+StoreStatus.TextYAlignment = Enum.TextYAlignment.Top
+StoreStatus.Parent = StorePanel
+
+local StoreToggle = makeUtilityToggle(
+    StorePanel,
+    UDim2.new(1, -74, 0, 40)
+)
+
+local StoreNow = makeUtilityButton(
+    StorePanel,
+    "Store ngay",
+    UDim2.new(0, 12, 0, 86),
+    UDim2.new(0, 125, 0, 30)
+)
+
+local PickupPanel = makeUtilityPanel(
+    FruitScroll,
+    "Auto Nhặt Trái",
+    126
+)
+
+local PickupStatus = Instance.new("TextLabel")
+PickupStatus.Size = UDim2.new(1, -100, 0, 42)
+PickupStatus.Position = UDim2.new(0, 12, 0, 39)
+PickupStatus.BackgroundTransparency = 1
+PickupStatus.Text = "Tìm fruit Tool trong map và tự nhặt."
+PickupStatus.TextColor3 = Color3.fromRGB(165, 165, 175)
+PickupStatus.TextSize = 11
+PickupStatus.Font = Enum.Font.Gotham
+PickupStatus.TextWrapped = true
+PickupStatus.TextXAlignment = Enum.TextXAlignment.Left
+PickupStatus.TextYAlignment = Enum.TextYAlignment.Top
+PickupStatus.Parent = PickupPanel
+
+local PickupToggle = makeUtilityToggle(
+    PickupPanel,
+    UDim2.new(1, -74, 0, 40)
+)
+
+Randomprint("[AXIOM] FARM UI READY")
+
+Toggle.MouseButton1Click:Connect(function()
+    UtilityState.AutoRandomFruit =
+        not UtilityState.AutoRandomFruit
+
+    setUtilityToggle(
+        RandomToggle,
+        UtilityState.AutoRandomFruit
+    )
+
+    RandomStatus.Text =
+        UtilityState.AutoRandomFruit
+        and "Auto Random: Bật"
+        or "Auto Random: Tắt"
+end)
+
+StoreToggle.MouseButton1Click:Connect(function()
+    UtilityState.AutoStoreFruit =
+        not UtilityState.AutoStoreFruit
+
+    setUtilityToggle(
+        StoreToggle,
+        UtilityState.AutoStoreFruit
+    )
+end)
+
+PickupToggle.MouseButton1Click:Connect(function()
+    UtilityState.AutoPickupFruit =
+        not UtilityState.AutoPickupFruit
+
+    setUtilityToggle(
+        PickupToggle,
+        UtilityState.AutoPickupFruit
+    )
+end)
+
+RandomNow.MouseButton1Click:Connect(function()
+    RandomStatus.Text =
+        "Đang gọi Cousin / Buy..."
+
+    local ok, result =
+        randomFruitOnce()
+
+    if ok then
+        RandomStatus.Text =
+            "Random • " ..
+            tostring(result)
+    else
+        RandomStatus.Text =
+            "Random lỗi • " ..
+            tostring(result)
+    end
+end)
+
+StoreNow.MouseButton1Click:Connect(function()
+    task.spawn(function()
+        StoreStatus.Text = "Đang store..."
+
+        local count = storeAllOwnedFruits()
+
+        StoreStatus.Text =
+            "Đã thử store " ..
+            tostring(count) ..
+            " fruit"
+    end)
+end)
+
+setUtilityToggle(
+    RandomToggle,
+    UtilityState.AutoRandomFruit
+)
+
+setUtilityToggle(
+    StoreToggle,
+    UtilityState.AutoStoreFruit
+)
+
+setUtilityToggle(
+    PickupToggle,
+    UtilityState.AutoPickupFruit
+)
+
+--=========================================================
+-- FRUIT BACKGROUND LOOPS
+--=========================================================
+
+task.spawn(function()
+    while ScreenGui.Parent do
+        if UtilityState.AutoRandomFruit then
+            local ok, result =
+                randomFruitOnce()
+
+            if ok then
+                RandomStatus.Text =
+                    "Auto Random • " ..
+                    tostring(result)
+            else
+                RandomStatus.Text =
+                    "Auto Random lỗi • " ..
+                    tostring(result)
+            end
+
+            task.wait(FruitState.RandomInterval)
+        else
+            task.wait(0.25)
+        end
+    end
+end)
+
+task.spawn(function()
+    while ScreenGui.Parent do
+        if UtilityState.AutoStoreFruit
+            and not FruitState.StoreBusy
+            and not FruitState.PickupBusy
+            and os.clock() >= (FruitState.StoreBlockUntil or 0)
+            and os.clock() - FruitState.LastStore
+                >= FruitState.StoreInterval then
+
+            FruitState.LastStore = os.clock()
+
+            local count = storeAllOwnedFruits()
+
+            if count > 0 then
+                StoreStatus.Text =
+                    "Auto Store: +" ..
+                    tostring(count) ..
+                    " fruit"
+            end
+        end
+
+        task.wait(0.35)
+    end
+end)
+
+task.spawn(function()
+    while ScreenGui.Parent do
+        if UtilityState.AutoPickupFruit
+            and not FruitState.PickupBusy
+            and os.clock() - FruitState.LastPickup
+                >= FruitState.PickupInterval then
+
+            FruitState.LastPickup = os.clock()
+
+            local tool, handle, distance =
+                findWorldFruitTool()
+
+            if tool and handle then
+                PickupStatus.Text =
+                    "Thấy " .. tool.Name ..
+                    " | " ..
+                    tostring(math.floor(distance or 0)) ..
+                    " studs"
+
+                local ok, status =
+                    pickupFruitTool(tool, handle)
+
+                if ok then
+                    PickupStatus.Text =
+                        "Đã nhặt: " .. tool.Name
+
+                    task.wait(0.15)
+
+                    if UtilityState.AutoStoreFruit then
+                        local count = storeAllOwnedFruits()
+
+                        if count > 0 then
+                            StoreStatus.Text =
+                                "Auto Store: +" ..
+                                tostring(count) ..
+                                " fruit"
+                        end
+                    end
+                else
+                    PickupStatus.Text =
+                        "Nhặt lỗi: " ..
+                        tostring(status)
+                end
+            end
+        end
+
+        task.wait(0.22)
+    end
+end)
+
+--=========================================================
+-- FIGHTING STYLE SHOP V1.15
+-- Mua võ trực tiếp bằng CommF_.
+-- Server vẫn tự kiểm tra tiền / mastery / item / quest.
+--=========================================================
+
+local StyleShopState = {
+    Busy = false,
+    LastBuy = 0,
+    Delay = 0.35,
+}
+
+local FIGHTING_STYLES = {
+    {
+        Label = "Dark Step (Black Leg)",
+        InternalLabel = "Black Leg",
+        Remote = "BuyBlackLeg",
+    },
+    {
+        Label = "Electro",
+        InternalLabel = "Electro",
+        Remote = "BuyElectro",
+    },
+    {
+        Label = "Fishman Karate",
+        InternalLabel = "Fishman Karate",
+        Remote = "BuyFishmanKarate",
+    },
+    {
+        Label = "Dragon Claw",
+        InternalLabel = "Dragon Claw",
+        Special = "DRAGON_CLAW",
+    },
+    {
+        Label = "Superhuman",
+        InternalLabel = "Superhuman",
+        Remote = "BuySuperhuman",
+    },
+    {
+        Label = "Death Step",
+        InternalLabel = "Death Step",
+        Remote = "BuyDeathStep",
+    },
+    {
+        Label = "Sharkman Karate",
+        InternalLabel = "Sharkman Karate",
+        Remote = "BuySharkmanKarate",
+    },
+    {
+        Label = "Electric Claw",
+        InternalLabel = "Electric Claw",
+        Remote = "BuyElectricClaw",
+    },
+    {
+        Label = "Dragon Talon",
+        InternalLabel = "Dragon Talon",
+        Remote = "BuyDragonTalon",
+    },
+    {
+        Label = "Godhuman",
+        InternalLabel = "Godhuman",
+        Remote = "BuyGodhuman",
+    },
+    {
+        Label = "Sanguine Art",
+        InternalLabel = "Sanguine Art",
+        Remote = "BuySanguineArt",
+    },
+}
+
+local function getStyleRemote()
+    return getFruitCommRemote()
+end
+
+local function ownStyle(styleName)
+    local backpack =
+        Player:FindFirstChild("Backpack")
+    local character =
+        Player.Character
+
+    if backpack
+        and backpack:FindFirstChild(styleName) then
+
+        return true
+    end
+
+    if character
+        and character:FindFirstChild(styleName) then
+
+        return true
+    end
+
+    return false
+end
+
+local function ownStyleEntry(style)
+    if not style then
+        return false
+    end
+
+    return ownStyle(
+        style.InternalLabel
+        or style.Label
+    )
+end
+
+local function invokeStyleRaw(...)
+    local args = table.pack(...)
+
+    local remote =
+        ReplicatedStorage
+        :WaitForChild("Remotes")
+        :WaitForChild("CommF_")
+
+    local ok, result = pcall(function()
+        return remote:InvokeServer(
+            table.unpack(args, 1, args.n)
+        )
+    end)
+
+    return ok, result
+end
+
+local function buyFightingStyle(style)
+    if not style then
+        return false, "NO_STYLE"
+    end
+
+    if StyleShopState.Busy then
+        return false, "BUSY"
+    end
+
+    StyleShopState.Busy = true
+
+    local ok = false
+    local r1 = nil
+    local r2 = nil
+
+    if style.Special == "DRAGON_CLAW" then
+        local ok1
+        ok1, r1 = invokeStyleRaw(
+            "BlackbeardReward",
+            "DragonClaw",
+            "1"
+        )
+
+        task.wait(0.08)
+
+        local ok2
+        ok2, r2 = invokeStyleRaw(
+            "BlackbeardReward",
+            "DragonClaw",
+            "2"
+        )
+
+        ok = ok1 and ok2
+    else
+        -- SOURCE SHOP hiện tại:
+        -- FireRemote("BuyBlackLeg"), FireRemote("BuyElectro"), ...
+        ok, r1 = invokeStyleRaw(
+            style.Remote
+        )
+    end
+
+    StyleShopState.Busy = false
+    StyleShopState.LastBuy = os.clock()
+
+    if not ok then
+        return false,
+            "REMOTE ERROR | " ..
+            tostring(r1) ..
+            " | " ..
+            tostring(r2)
+    end
+
+    return true,
+        "ĐÃ GỬI SERVER | A=" ..
+        tostring(r1) ..
+        " | B=" ..
+        tostring(r2)
+end
+
+--=========================================================
+-- STYLE TAB UI
+--=========================================================
+
+local StyleScroll = Instance.new("ScrollingFrame")
+StyleScroll.Size = UDim2.new(1, 0, 1, 0)
+StyleScroll.BackgroundTransparency = 1
+StyleScroll.BorderSizePixel = 0
+StyleScroll.ScrollBarThickness = 4
+StyleScroll.ScrollBarImageColor3 =
+    Color3.fromRGB(80, 80, 90)
+StyleScroll.CanvasSize =
+    UDim2.new(0, 0, 0, 650)
+StyleScroll.Parent = StylePage
+
+local StylePadding = Instance.new("UIPadding")
+StylePadding.PaddingTop = UDim.new(0, 12)
+StylePadding.PaddingLeft = UDim.new(0, 12)
+StylePadding.PaddingRight = UDim.new(0, 12)
+StylePadding.PaddingBottom = UDim.new(0, 12)
+StylePadding.Parent = StyleScroll
+
+local StyleLayout = Instance.new("UIListLayout")
+StyleLayout.Padding = UDim.new(0, 10)
+StyleLayout.SortOrder = Enum.SortOrder.LayoutOrder
+StyleLayout.Parent = StyleScroll
+
+StyleLayout:GetPropertyChangedSignal(
+    "AbsoluteContentSize"
+):Connect(function()
+    StyleScroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        StyleLayout.AbsoluteContentSize.Y + 24
+    )
+end)
+
+local StyleHeader = makeUtilityPanel(
+    StyleScroll,
+    "Mua Fighting Style",
+    105
+)
+
+local StyleStatus = Instance.new("TextLabel")
+StyleStatus.Size = UDim2.new(1, -24, 0, 45)
+StyleStatus.Position = UDim2.new(0, 12, 0, 39)
+StyleStatus.BackgroundTransparency = 1
+StyleStatus.Text =
+    "Direct BuyX như Shop hiện tại • Dragon Claw dùng 1→2."
+StyleStatus.TextColor3 =
+    Color3.fromRGB(165, 165, 175)
+StyleStatus.TextSize = 11
+StyleStatus.Font = Enum.Font.Gotham
+StyleStatus.TextWrapped = true
+StyleStatus.TextXAlignment =
+    Enum.TextXAlignment.Left
+StyleStatus.TextYAlignment =
+    Enum.TextYAlignment.Top
+StyleStatus.Parent = StyleHeader
+
+local BuyAllPanel = makeUtilityPanel(
+    StyleScroll,
+    "Mua tất cả có thể",
+    82
+)
+
+local BuyAllButton = makeUtilityButton(
+    BuyAllPanel,
+    "Mua tất cả",
+    UDim2.new(0, 12, 0, 39),
+    UDim2.new(0, 140, 0, 31)
+)
+
+for index, style in ipairs(FIGHTING_STYLES) do
+    -- Bind per iteration để callback không trỏ nhầm style.
+    local currentStyle = style
+
+    local panel = makeUtilityPanel(
+        StyleScroll,
+        currentStyle.Label,
+        78
+    )
+
+    local buyButton = makeUtilityButton(
+        panel,
+        "Mua",
+        UDim2.new(1, -86, 0, 38),
+        UDim2.new(0, 74, 0, 30)
+    )
+
+    local ownedLabel = Instance.new("TextLabel")
+    ownedLabel.Size =
+        UDim2.new(1, -112, 0, 30)
+    ownedLabel.Position =
+        UDim2.new(0, 12, 0, 39)
+    ownedLabel.BackgroundTransparency = 1
+    ownedLabel.Text =
+        ownStyleEntry(currentStyle)
+        and "Đã có"
+        or "Chưa mua"
+    ownedLabel.TextColor3 =
+        Color3.fromRGB(165, 165, 175)
+    ownedLabel.TextSize = 11
+    ownedLabel.Font = Enum.Font.Gotham
+    ownedLabel.TextXAlignment =
+        Enum.TextXAlignment.Left
+    ownedLabel.Parent = panel
+
+    buyButton.MouseButton1Click:Connect(function()
+        StyleStatus.Text =
+            "Đang gọi " ..
+            currentStyle.Label ..
+            "..."
+
+        local ok, result =
+            buyFightingStyle(currentStyle)
+
+        ownedLabel.Text =
+            ownStyleEntry(currentStyle)
+            and "Đã có"
+            or "Server chưa cấp"
+
+        if ok then
+            StyleStatus.Text =
+                currentStyle.Label ..
+                " • " ..
+                tostring(result)
+        else
+            StyleStatus.Text =
+                currentStyle.Label ..
+                " lỗi • " ..
+                tostring(result)
+        end
+    end)
+end
+
+BuyAllButton.MouseButton1Click:Connect(function()
+    if StyleShopState.Busy then
+        StyleStatus.Text = "Shop đang bận"
+        return
+    end
+
+    task.spawn(function()
+        local sent = 0
+        local failed = 0
+
+        for _, style in ipairs(FIGHTING_STYLES) do
+            StyleStatus.Text =
+                "Đang gọi: " ..
+                style.Label
+
+            local ok =
+                buyFightingStyle(style)
+
+            if ok then
+                sent += 1
+            else
+                failed += 1
+            end
+
+            task.wait(0.4)
+        end
+
+        StyleStatus.Text =
+            "Đã gửi " ..
+            tostring(sent) ..
+            " | lỗi remote " ..
+            tostring(failed) ..
+            " | Server tự kiểm tra điều kiện"
+    end)
+end)
+
+--=========================================================
+-- STATS PAGE UI
+--=========================================================
+
+local StatsScroll = Instance.new("ScrollingFrame")
+StatsScroll.Size = UDim2.new(1, 0, 1, 0)
+StatsScroll.BackgroundTransparency = 1
+StatsScroll.BorderSizePixel = 0
+StatsScroll.ScrollBarThickness = 4
+StatsScroll.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 90)
+StatsScroll.CanvasSize = UDim2.new(0, 0, 0, 355)
+StatsScroll.Parent = StatsPage
+
+local StatsPadding = Instance.new("UIPadding")
+StatsPadding.PaddingTop = UDim.new(0, 12)
+StatsPadding.PaddingLeft = UDim.new(0, 12)
+StatsPadding.PaddingRight = UDim.new(0, 12)
+StatsPadding.PaddingBottom = UDim.new(0, 12)
+StatsPadding.Parent = StatsScroll
+
+local StatsLayout = Instance.new("UIListLayout")
+StatsLayout.Padding = UDim.new(0, 10)
+StatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+StatsLayout.Parent = StatsScroll
+
+StatsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    StatsScroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        StatsLayout.AbsoluteContentSize.Y + 24
+    )
+end)
+
+-- Redeem panel
+local RedeemPanel = makeUtilityPanel(
+    StatsScroll,
+    "Auto Redeem Code",
+    130
+)
+
+local RedeemStatus = Instance.new("TextLabel")
+RedeemStatus.Size = UDim2.new(1, -100, 0, 42)
+RedeemStatus.Position = UDim2.new(0, 12, 0, 39)
+RedeemStatus.BackgroundTransparency = 1
+RedeemStatus.Text = "Tự redeem TOÀN BỘ code hiện có, kể cả Stat Reset."
+RedeemStatus.TextColor3 = Color3.fromRGB(165, 165, 175)
+RedeemStatus.TextSize = 11
+RedeemStatus.Font = Enum.Font.Gotham
+RedeemStatus.TextWrapped = true
+RedeemStatus.TextXAlignment = Enum.TextXAlignment.Left
+RedeemStatus.TextYAlignment = Enum.TextYAlignment.Top
+RedeemStatus.Parent = RedeemPanel
+
+local RedeemToggle = makeUtilityToggle(
+    RedeemPanel,
+    UDim2.new(1, -74, 0, 40)
+)
+
+local RedeemNow = makeUtilityButton(
+    RedeemPanel,
+    "Redeem ngay",
+    UDim2.new(0, 12, 0, 88),
+    UDim2.new(0, 120, 0, 30)
+)
+
+local RedeemInfo = Instance.new("TextLabel")
+RedeemInfo.Size = UDim2.new(1, -154, 0, 30)
+RedeemInfo.Position = UDim2.new(0, 142, 0, 88)
+RedeemInfo.BackgroundTransparency = 1
+RedeemInfo.Text = "Có redeem Stat Reset/Refund theo yêu cầu."
+RedeemInfo.TextColor3 = Color3.fromRGB(125, 125, 138)
+RedeemInfo.TextSize = 10
+RedeemInfo.Font = Enum.Font.Gotham
+RedeemInfo.TextXAlignment = Enum.TextXAlignment.Left
+RedeemInfo.Parent = RedeemPanel
+
+-- Auto Stats panel
+local AutoStatsPanel = makeUtilityPanel(
+    StatsScroll,
+    "Auto + Điểm Stat",
+    176
+)
+
+local StatsStatus = Instance.new("TextLabel")
+StatsStatus.Size = UDim2.new(1, -100, 0, 42)
+StatsStatus.Position = UDim2.new(0, 12, 0, 39)
+StatsStatus.BackgroundTransparency = 1
+StatsStatus.Text = "Trạng thái: Tắt"
+StatsStatus.TextColor3 = Color3.fromRGB(165, 165, 175)
+StatsStatus.TextSize = 11
+StatsStatus.Font = Enum.Font.Gotham
+StatsStatus.TextWrapped = true
+StatsStatus.TextXAlignment = Enum.TextXAlignment.Left
+StatsStatus.TextYAlignment = Enum.TextYAlignment.Top
+StatsStatus.Parent = AutoStatsPanel
+
+local AutoStatsToggle = makeUtilityToggle(
+    AutoStatsPanel,
+    UDim2.new(1, -74, 0, 40)
+)
+
+local StatButtonsHolder = Instance.new("Frame")
+StatButtonsHolder.Size = UDim2.new(1, -24, 0, 64)
+StatButtonsHolder.Position = UDim2.new(0, 12, 0, 82)
+StatButtonsHolder.BackgroundTransparency = 1
+StatButtonsHolder.Parent = AutoStatsPanel
+
+local StatGrid = Instance.new("UIGridLayout")
+StatGrid.CellSize = UDim2.new(0.32, -4, 0, 28)
+StatGrid.CellPadding = UDim2.new(0.02, 0, 0, 6)
+StatGrid.FillDirectionMaxCells = 3
+StatGrid.SortOrder = Enum.SortOrder.LayoutOrder
+StatGrid.Parent = StatButtonsHolder
+
+local StatButtons = {}
+
+local function updateStatButtons()
+    for statName, button in pairs(StatButtons) do
+        local selected = UtilityState.SelectedStat == statName
+
+        TweenService:Create(
+            button,
+            TweenInfo.new(0.12),
+            {
+                BackgroundColor3 = selected
+                    and Color3.fromRGB(63, 122, 82)
+                    or Color3.fromRGB(43, 43, 52)
+            }
+        ):Play()
+    end
+end
+
+local function createStatButton(statName, label)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 100, 0, 28)
+    button.BackgroundColor3 = Color3.fromRGB(43, 43, 52)
+    button.Text = label
+    button.TextColor3 = Color3.fromRGB(235, 235, 240)
+    button.TextSize = 11
+    button.Font = Enum.Font.GothamMedium
+    button.BorderSizePixel = 0
+    button.Parent = StatButtonsHolder
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = button
+
+    button.MouseButton1Click:Connect(function()
+        UtilityState.SelectedStat = statName
+        StatsStatus.Text = "Đã chọn stat: " .. statName
+        updateStatButtons()
+    end)
+
+    StatButtons[statName] = button
+end
+
+createStatButton("Melee", "Melee")
+createStatButton("Defense", "Defense")
+createStatButton("Sword", "Sword")
+createStatButton("Gun", "Gun")
+createStatButton("Demon Fruit", "Demon Fruit")
+
+local StatInfo = Instance.new("TextLabel")
+StatInfo.Size = UDim2.new(1, -24, 0, 20)
+StatInfo.Position = UDim2.new(0, 12, 0, 145)
+StatInfo.BackgroundTransparency = 1
+StatInfo.Text = "Chọn đúng stat muốn nâng • tối đa 9 điểm/lần"
+StatInfo.TextColor3 = Color3.fromRGB(125, 125, 138)
+StatInfo.TextSize = 10
+StatInfo.Font = Enum.Font.Gotham
+StatInfo.TextXAlignment = Enum.TextXAlignment.Left
+StatInfo.Parent = AutoStatsPanel
+
+updateStatButtons()
+
+--=========================================================
+-- REDEEM ENGINE
+--=========================================================
+
+local function getRedeemRemote()
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    return remotes and remotes:FindFirstChild("Redeem")
+end
+
+local function redeemAllCodes(force)
+    if UtilityState.RedeemRunning then
+        return
+    end
+
+    if UtilityState.RedeemedThisSession and not force then
+        return
+    end
+
+    UtilityState.RedeemRunning = true
+
+    task.spawn(function()
+        local remote = getRedeemRemote()
+
+        if not remote then
+            RedeemStatus.Text = "Lỗi: không tìm thấy Remotes.Redeem"
+            UtilityState.RedeemRunning = false
+            return
+        end
+
+        local attempted = 0
+
+        for index, code in ipairs(ALL_REDEEM_CODES) do
+            if not UtilityState.AutoRedeem and not force then
+                break
+            end
+
+            RedeemStatus.Text =
+                "Redeem " .. tostring(index) ..
+                "/" .. tostring(#ALL_REDEEM_CODES) ..
+                ": " .. tostring(code)
+
+            local ok = pcall(function()
+                remote:InvokeServer(code)
+            end)
+
+            if ok then
+                attempted += 1
+            end
+
+            -- Không spam RemoteFunction.
+            task.wait(0.16)
+        end
+
+        UtilityState.RedeemedThisSession = true
+        UtilityState.RedeemRunning = false
+
+        RedeemStatus.Text =
+            "Hoàn tất • đã thử " ..
+            tostring(attempted) ..
+            "/" .. tostring(#ALL_REDEEM_CODES) ..
+            " code"
+    end)
+end
+
+RedeemToggle.MouseButton1Click:Connect(function()
+    UtilityState.AutoRedeem = not UtilityState.AutoRedeem
+    setUtilityToggle(RedeemToggle, UtilityState.AutoRedeem)
+
+    if UtilityState.AutoRedeem then
+        redeemAllCodes(false)
+    end
+end)
+
+RedeemNow.MouseButton1Click:Connect(function()
+    redeemAllCodes(true)
+end)
+
+setUtilityToggle(RedeemToggle, UtilityState.AutoRedeem)
+
+-- Fast Boot:
+-- ON  -> khởi tạo redeem gần như ngay, chạy nền không chặn UI/Farm.
+-- OFF -> giữ delay 3 giây như bản cũ.
+local function bootRedeemModule()
+    if UtilityState.AutoRedeem then
+        redeemAllCodes(false)
+    end
+end
+
+if UtilityState.FastBoot then
+    task.delay(0.15, bootRedeemModule)
+else
+    task.delay(3, bootRedeemModule)
+end
+
+--=========================================================
+-- SETTINGS V1.10: XÓA THÔNG BÁO + FAST BOOT
+--=========================================================
+
+local SettingsPanel = Instance.new("Frame")
+SettingsPanel.Size = UDim2.new(1, -24, 0, 166)
+SettingsPanel.Position = UDim2.new(0, 12, 0, 12)
+SettingsPanel.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+SettingsPanel.BorderSizePixel = 0
+SettingsPanel.Parent = SettingsPage
+
+local SettingsCorner = Instance.new("UICorner")
+SettingsCorner.CornerRadius = UDim.new(0, 9)
+SettingsCorner.Parent = SettingsPanel
+
+local SettingsTitle = Instance.new("TextLabel")
+SettingsTitle.Size = UDim2.new(1, -24, 0, 28)
+SettingsTitle.Position = UDim2.new(0, 12, 0, 8)
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.Text = "Tối ưu giao diện / khởi động"
+SettingsTitle.TextColor3 = Color3.fromRGB(235, 235, 240)
+SettingsTitle.TextSize = 15
+SettingsTitle.Font = Enum.Font.GothamBold
+SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+SettingsTitle.Parent = SettingsPanel
+
+local NotifyLabel = Instance.new("TextLabel")
+NotifyLabel.Size = UDim2.new(1, -100, 0, 35)
+NotifyLabel.Position = UDim2.new(0, 12, 0, 43)
+NotifyLabel.BackgroundTransparency = 1
+NotifyLabel.Text = "Xóa thông báo game"
+NotifyLabel.TextColor3 = Color3.fromRGB(210, 210, 220)
+NotifyLabel.TextSize = 12
+NotifyLabel.Font = Enum.Font.Gotham
+NotifyLabel.TextXAlignment = Enum.TextXAlignment.Left
+NotifyLabel.Parent = SettingsPanel
+
+local NotifyToggle = makeUtilityToggle(
+    SettingsPanel,
+    UDim2.new(1, -74, 0, 46)
+)
+
+local FastBootLabel = Instance.new("TextLabel")
+FastBootLabel.Size = UDim2.new(1, -100, 0, 35)
+FastBootLabel.Position = UDim2.new(0, 12, 0, 84)
+FastBootLabel.BackgroundTransparency = 1
+FastBootLabel.Text = "Fast Boot script"
+FastBootLabel.TextColor3 = Color3.fromRGB(210, 210, 220)
+FastBootLabel.TextSize = 12
+FastBootLabel.Font = Enum.Font.Gotham
+FastBootLabel.TextXAlignment = Enum.TextXAlignment.Left
+FastBootLabel.Parent = SettingsPanel
+
+local FastBootToggle = makeUtilityToggle(
+    SettingsPanel,
+    UDim2.new(1, -74, 0, 87)
+)
+
+local SettingsInfo = Instance.new("TextLabel")
+SettingsInfo.Size = UDim2.new(1, -24, 0, 35)
+SettingsInfo.Position = UDim2.new(0, 12, 0, 125)
+SettingsInfo.BackgroundTransparency = 1
+SettingsInfo.Text = "Fast Boot = module script chạy sớm hơn; không tăng tốc mở app Roblox."
+SettingsInfo.TextColor3 = Color3.fromRGB(125, 125, 138)
+SettingsInfo.TextSize = 10
+SettingsInfo.Font = Enum.Font.Gotham
+SettingsInfo.TextWrapped = true
+SettingsInfo.TextXAlignment = Enum.TextXAlignment.Left
+SettingsInfo.Parent = SettingsPanel
+
+local NotificationNames = {
+    notification = true,
+    notifications = true,
+    notify = true,
+    alerts = true,
+    alert = true,
+    message = true,
+    messages = true,
+    hint = true,
+    hints = true,
+    tip = true,
+    tips = true,
+}
+
+local function belongsToAxiom(instance)
+    local current = instance
+
+    while current do
+        if current == ScreenGui then
+            return true
+        end
+
+        current = current.Parent
+    end
+
+    return false
+end
+
+local function isNotificationObject(instance)
+    if not instance or belongsToAxiom(instance) then
+        return false
+    end
+
+    local lowered = string.lower(instance.Name or "")
+
+    if NotificationNames[lowered] then
+        return true
+    end
+
+    -- Chỉ match tên rõ ràng, tránh giết Main/UI gameplay.
+    if lowered:find("notification", 1, true)
+        or lowered:find("notify", 1, true) then
+
+        return true
+    end
+
+    return false
+end
+
+local function hideNotificationObject(instance)
+    if not UtilityState.HideNotifications
+        or not isNotificationObject(instance) then
+        return
+    end
+
+    pcall(function()
+        if instance:IsA("ScreenGui") then
+            instance.Enabled = false
+
+        elseif instance:IsA("GuiObject") then
+            instance.Visible = false
+        end
+    end)
+end
+
+local function sweepNotifications()
+    if not UtilityState.HideNotifications then
+        return
+    end
+
+    local playerGui = Player:FindFirstChildOfClass("PlayerGui")
+        or Player:FindFirstChild("PlayerGui")
+
+    if not playerGui then
+        return
+    end
+
+    for _, obj in ipairs(playerGui:GetDescendants()) do
+        hideNotificationObject(obj)
+    end
+end
+
+local playerGuiForNotify = Player:FindFirstChildOfClass("PlayerGui")
+    or Player:FindFirstChild("PlayerGui")
+
+if playerGuiForNotify then
+    playerGuiForNotify.DescendantAdded:Connect(function(obj)
+        if UtilityState.HideNotifications then
+            task.defer(function()
+                hideNotificationObject(obj)
+            end)
+        end
+    end)
+end
+
+NotifyToggle.MouseButton1Click:Connect(function()
+    UtilityState.HideNotifications =
+        not UtilityState.HideNotifications
+
+    setUtilityToggle(
+        NotifyToggle,
+        UtilityState.HideNotifications
+    )
+
+    if UtilityState.HideNotifications then
+        sweepNotifications()
+    end
+end)
+
+FastBootToggle.MouseButton1Click:Connect(function()
+    UtilityState.FastBoot = not UtilityState.FastBoot
+
+    setUtilityToggle(
+        FastBootToggle,
+        UtilityState.FastBoot
+    )
+end)
+
+setUtilityToggle(
+    NotifyToggle,
+    UtilityState.HideNotifications
+)
+
+setUtilityToggle(
+    FastBootToggle,
+    UtilityState.FastBoot
+)
+
+--=========================================================
+-- AUTO STATS ENGINE
+--=========================================================
+
+local function getStatsRemote()
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    return remotes and remotes:FindFirstChild("CommF_")
+end
+
+local function getAvailablePoints()
+    local data = Player:FindFirstChild("Data")
+    local points = data and data:FindFirstChild("Points")
+
+    if points and tonumber(points.Value) then
+        return tonumber(points.Value)
+    end
+
+    return 0
+end
+
+local function getStatLevel(statName)
+    local data = Player:FindFirstChild("Data")
+    local stats = data and data:FindFirstChild("Stats")
+    local stat = stats and stats:FindFirstChild(statName)
+    local level = stat and stat:FindFirstChild("Level")
+
+    if level and tonumber(level.Value) then
+        return tonumber(level.Value)
+    end
+
+    return 0
+end
+
+local function resolveAutoStatTarget()
+    return UtilityState.SelectedStat or "Melee"
+end
+
+local function addStatPoints(statName, amount)
+    local remote = getStatsRemote()
+
+    if not remote then
+        return false, "NO_COMMF"
+    end
+
+    if amount <= 0 then
+        return false, "NO_POINTS"
+    end
+
+    local ok = pcall(function()
+        remote:InvokeServer(
+            "AddPoint",
+            statName,
+            amount
+        )
+    end)
+
+    return ok, ok and "OK" or "REMOTE_FAILED"
+end
+
+AutoStatsToggle.MouseButton1Click:Connect(function()
+    UtilityState.AutoStats = not UtilityState.AutoStats
+    setUtilityToggle(AutoStatsToggle, UtilityState.AutoStats)
+
+    if not UtilityState.AutoStats then
+        StatsStatus.Text = "Trạng thái: Tắt"
+    end
+end)
+
+setUtilityToggle(AutoStatsToggle, UtilityState.AutoStats)
+
+task.spawn(function()
+    while ScreenGui.Parent do
+        if UtilityState.AutoStats then
+            local points = getAvailablePoints()
+
+            if points > 0 then
+                local target = resolveAutoStatTarget()
+                local amount = math.min(
+                    UtilityState.StatBatch,
+                    points
+                )
+
+                local ok, status =
+                    addStatPoints(target, amount)
+
+                if ok then
+                    StatsStatus.Text =
+                        "Đang +" .. tostring(amount) ..
+                        " → " .. target ..
+                        " | Còn: " ..
+                        tostring(getAvailablePoints())
+                else
+                    StatsStatus.Text =
+                        "Stat lỗi: " .. tostring(status)
+                end
+
+                task.wait(UtilityState.StatDelay)
+            else
+                StatsStatus.Text =
+                    "Đang bật • chưa có điểm stat"
+                task.wait(0.45)
+            end
+        else
+            task.wait(0.35)
+        end
+    end
+end)
+
+-- Auto Store phản ứng ngay khi fruit vào Backpack.
+local FruitBackpack = Player:FindFirstChild("Backpack")
+
+if FruitBackpack then
+    FruitBackpack.ChildAdded:Connect(function(child)
+        if looksLikeFruitTool(child) then
+            FruitState.AcquiredSerial += 1
+            FruitState.LastAcquiredName = child.Name
+
+            if UtilityState.AutoStoreFruit then
+                task.spawn(function()
+                    while child.Parent
+                        and UtilityState.AutoStoreFruit
+                        and os.clock() < (FruitState.StoreBlockUntil or 0) do
+
+                        task.wait(0.10)
+                    end
+
+                    if child.Parent
+                        and UtilityState.AutoStoreFruit
+                        and not FruitState.StoreBusy then
+
+                        storeFruitTool(child)
+                    end
+                end)
+            end
+        end
+    end)
+end
+
+local FarmState = {
+    Enabled = false,
+    Token = 0,
+
+    -- Cao hơn bản cũ để mob khó chạm tới.
+    -- Đủ cao để mob khó chạm nhưng không kéo cụm lên trời.
+    HoverHeight = 14,
+
+    -- Lệch khỏi tâm cụm để avatar ổn định hơn.
+    BackOffset = 4.5,
+
+    -- Hard vertical safety.
+    MaxAnchorDriftY = 6,
+    MaxPlayerAboveAnchor = 22,
+
+    -- Theo dõi quest để đổi bãi ngay khi level vượt mốc.
+    ActiveQuestKey = nil,
+    LastResolvedQuestKey = nil,
+
+    -- MULTI MOB
+    MaxTargets = 16,          -- số quái tối đa xử lý cùng lúc
+    HitDistance = 120,       -- vùng multi-hit quanh nhân vật
+    MagnetRadius = 300,      -- bán kính gom quái đúng quest
+    MagnetEnabled = true,
+
+    -- Fast Attack luôn đi cùng Farm, không có nút riêng.
+    FastAttackActive = false,
+
+    -- Loop nhanh hơn khi Farm ON.
+    UpdateDelay = 0.035,
+    AttackDelay = 0.035,
+
+    -- Remote attack delay: đủ nhanh nhưng không spam vô hạn.
+    FastRemoteDelay = 0.070,
+
+    QuestRetryDelay = 1.15,
+    LastQuestAttempt = 0,
+
+    NoMobSince = 0,
+    LastNoMobQuest = nil,
+}
+
+--=========================================================
+-- QUEST DATABASE
+-- {MinLv, MaxLv, MobName, QuestName, QuestIndex, QuestCFrame}
+--=========================================================
+
+local QUESTS = {
+    -- SEA 1
+    {1,    9,    "Bandit",                 "BanditQuest1",        1, CFrame.new(1059.37, 15.45, 1550.42)},
+    {10,   14,   "Monkey",                 "JungleQuest",         1, CFrame.new(-1601.66, 36.85, 153.39)},
+    {15,   29,   "Gorilla",                "JungleQuest",         2, CFrame.new(-1601.66, 36.85, 153.39)},
+    {30,   39,   "Pirate",                 "BuggyQuest1",         1, CFrame.new(-1140.18, 4.75, 3827.41)},
+    {40,   59,   "Brute",                  "BuggyQuest1",         2, CFrame.new(-1140.18, 4.75, 3827.41)},
+    {60,   74,   "Desert Bandit",          "DesertQuest",         1, CFrame.new(894.49, 5.14, 4392.43)},
+    {75,   89,   "Desert Officer",         "DesertQuest",         2, CFrame.new(894.49, 5.14, 4392.43)},
+    {90,   99,   "Snow Bandit",            "SnowQuest",           1, CFrame.new(1389.74, 88.15, -1298.91)},
+    {100,  119,  "Snowman",                "SnowQuest",           2, CFrame.new(1389.74, 88.15, -1298.91)},
+    {120,  149,  "Chief Petty Officer",     "MarineQuest2",        1, CFrame.new(-5039.59, 27.35, 4324.68)},
+    {150,  174,  "Sky Bandit",             "SkyQuest",            1, CFrame.new(-4839.53, 716.37, -2619.44)},
+    {175,  189,  "Dark Master",            "SkyQuest",            2, CFrame.new(-4839.53, 716.37, -2619.44)},
+    {190,  209,  "Prisoner",               "PrisonerQuest",       1, CFrame.new(5308.93, 1.66, 475.12)},
+    {210,  249,  "Dangerous Prisoner",     "PrisonerQuest",       2, CFrame.new(5308.93, 1.66, 475.12)},
+    {250,  274,  "Toga Warrior",           "ColosseumQuest",      1, CFrame.new(-1576.12, 7.39, -2983.31)},
+    {275,  299,  "Gladiator",              "ColosseumQuest",      2, CFrame.new(-1576.12, 7.39, -2983.31)},
+    {300,  324,  "Military Soldier",       "MagmaQuest",          1, CFrame.new(-5313.37, 10.95, 8515.29)},
+    {325,  374,  "Military Spy",           "MagmaQuest",          2, CFrame.new(-5313.37, 10.95, 8515.29)},
+    {375,  399,  "Fishman Warrior",        "FishmanQuest",        1, CFrame.new(61122.65, 18.50, 1569.40)},
+    {400,  449,  "Fishman Commando",       "FishmanQuest",        2, CFrame.new(61122.65, 18.50, 1569.40)},
+    {450,  474,  "God's Guard",            "SkyExp1Quest",        1, CFrame.new(-4721.89, 843.87, -1949.97)},
+    {475,  524,  "Shanda",                 "SkyExp1Quest",        2, CFrame.new(-7859.10, 5544.19, -381.48)},
+    {525,  549,  "Royal Squad",            "SkyExp2Quest",        1, CFrame.new(-7906.82, 5634.66, -1411.99)},
+    {550,  624,  "Royal Soldier",          "SkyExp2Quest",        2, CFrame.new(-7906.82, 5634.66, -1411.99)},
+    {625,  649,  "Galley Pirate",          "FountainQuest",       1, CFrame.new(5254.60, 38.50, 4049.70)},
+    {650,  699,  "Galley Captain",         "FountainQuest",       2, CFrame.new(5254.60, 38.50, 4049.70)},
+
+    -- SEA 2
+    {700,  724,  "Raider",                 "Area1Quest",          1, CFrame.new(-424.08, 73.01, 1836.92)},
+    {725,  774,  "Mercenary",              "Area1Quest",          2, CFrame.new(-424.08, 73.01, 1836.92)},
+    {775,  799,  "Swan Pirate",            "Area2Quest",          1, CFrame.new(632.70, 73.11, 918.67)},
+    {800,  874,  "Factory Staff",          "Area2Quest",          2, CFrame.new(632.70, 73.11, 918.67)},
+    {875,  899,  "Marine Lieutenant",      "MarineQuest3",        1, CFrame.new(-2440.80, 71.71, -3216.07)},
+    {900,  949,  "Marine Captain",         "MarineQuest3",        2, CFrame.new(-2440.80, 71.71, -3216.07)},
+    {950,  974,  "Zombie",                 "ZombieQuest",         1, CFrame.new(-5492.79, 48.52, -793.71)},
+    {975,  999,  "Vampire",                "ZombieQuest",         2, CFrame.new(-5492.79, 48.52, -793.71)},
+    {1000, 1049, "Snow Trooper",           "SnowMountainQuest",   1, CFrame.new(609.86, 400.12, -5372.26)},
+    {1050, 1099, "Winter Warrior",         "SnowMountainQuest",   2, CFrame.new(609.86, 400.12, -5372.26)},
+    {1100, 1124, "Lab Subordinate",        "IceSideQuest",        1, CFrame.new(-6064.07, 15.24, -4902.98)},
+    {1125, 1174, "Horned Warrior",         "IceSideQuest",        2, CFrame.new(-6064.07, 15.24, -4902.98)},
+    {1175, 1199, "Magma Ninja",            "FireSideQuest",       1, CFrame.new(-5428.03, 15.06, -5299.43)},
+    {1200, 1249, "Lava Pirate",            "FireSideQuest",       2, CFrame.new(-5428.03, 15.06, -5299.43)},
+    {1250, 1274, "Ship Deckhand",          "ShipQuest1",          1, CFrame.new(1037.80, 125.09, 32911.60)},
+    {1275, 1299, "Ship Engineer",          "ShipQuest1",          2, CFrame.new(1037.80, 125.09, 32911.60)},
+    {1300, 1324, "Ship Steward",           "ShipQuest2",          1, CFrame.new(968.81, 125.09, 33244.13)},
+    {1325, 1349, "Ship Officer",           "ShipQuest2",          2, CFrame.new(968.81, 125.09, 33244.13)},
+    {1350, 1374, "Arctic Warrior",         "FrostQuest",          1, CFrame.new(5667.66, 26.80, -6486.09)},
+    {1375, 1424, "Snow Lurker",            "FrostQuest",          2, CFrame.new(5667.66, 26.80, -6486.09)},
+    {1425, 1449, "Sea Soldier",            "ForgottenQuest",      1, CFrame.new(-3054.44, 235.54, -10142.82)},
+    {1450, 1499, "Water Fighter",          "ForgottenQuest",      2, CFrame.new(-3054.44, 235.54, -10142.82)},
+
+    -- SEA 3
+    {1500, 1524, "Pirate Millionaire",     "PiratePortQuest",     1, CFrame.new(-290.07, 42.90, 5581.59)},
+    {1525, 1574, "Pistol Billionaire",     "PiratePortQuest",     2, CFrame.new(-290.07, 42.90, 5581.59)},
+    {1575, 1599, "Dragon Crew Warrior",    "DragonCrewQuest",     1, CFrame.new(6737.78, 127.43, -713.23)},
+    {1600, 1624, "Dragon Crew Archer",     "DragonCrewQuest",     2, CFrame.new(6737.78, 127.43, -713.23)},
+    {1625, 1649, "Hydra Enforcer",         "VenomCrewQuest",      1, CFrame.new(5212.94, 1004.12, 755.67)},
+    {1650, 1699, "Venomous Assailant",     "VenomCrewQuest",      2, CFrame.new(5212.94, 1004.12, 755.67)},
+    {1700, 1724, "Marine Commodore",       "MarineTreeIsland",    1, CFrame.new(2484.07, 74.28, -6786.64)},
+    {1725, 1774, "Marine Rear Admiral",    "MarineTreeIsland",    2, CFrame.new(2484.07, 74.28, -6786.64)},
+    {1775, 1799, "Fishman Raider",         "DeepForestIsland3",   1, CFrame.new(-10581.66, 330.87, -8761.19)},
+    {1800, 1824, "Fishman Captain",        "DeepForestIsland3",   2, CFrame.new(-10581.66, 330.87, -8761.19)},
+    {1825, 1849, "Forest Pirate",          "DeepForestIsland",    1, CFrame.new(-13234.04, 331.49, -7625.40)},
+    {1850, 1899, "Mythological Pirate",    "DeepForestIsland",    2, CFrame.new(-13234.04, 331.49, -7625.40)},
+    {1900, 1924, "Jungle Pirate",          "DeepForestIsland2",   1, CFrame.new(-12680.38, 389.97, -9902.02)},
+    {1925, 1974, "Musketeer Pirate",       "DeepForestIsland2",   2, CFrame.new(-12680.38, 389.97, -9902.02)},
+    {1975, 1999, "Reborn Skeleton",        "HauntedQuest1",       1, CFrame.new(-9479.22, 141.22, 5566.09)},
+    {2000, 2024, "Living Zombie",          "HauntedQuest1",       2, CFrame.new(-9479.22, 141.22, 5566.09)},
+    {2025, 2049, "Demonic Soul",           "HauntedQuest2",       1, CFrame.new(-9516.99, 172.02, 6078.47)},
+    {2050, 2074, "Posessed Mummy",         "HauntedQuest2",       2, CFrame.new(-9516.99, 172.02, 6078.47)},
+    {2075, 2099, "Peanut Scout",           "NutsIslandQuest",     1, CFrame.new(-2104.36, 38.13, -10194.07)},
+    {2100, 2124, "Peanut President",       "NutsIslandQuest",     2, CFrame.new(-2104.36, 38.13, -10194.07)},
+    {2125, 2149, "Ice Cream Chef",         "IceCreamIslandQuest", 1, CFrame.new(-820.22, 65.85, -10966.17)},
+    {2150, 2199, "Ice Cream Commander",    "IceCreamIslandQuest", 2, CFrame.new(-820.22, 65.85, -10966.17)},
+    {2200, 2224, "Cookie Crafter",         "CakeQuest1",          1, CFrame.new(-2021.32, 37.80, -12028.73)},
+    {2225, 2249, "Cake Guard",             "CakeQuest1",          2, CFrame.new(-2021.32, 37.80, -12028.73)},
+    {2250, 2274, "Baking Staff",           "CakeQuest2",          1, CFrame.new(-1927.92, 37.80, -12842.54)},
+    {2275, 2299, "Head Baker",             "CakeQuest2",          2, CFrame.new(-1927.92, 37.80, -12842.54)},
+    {2300, 2324, "Cocoa Warrior",          "ChocQuest1",          1, CFrame.new(233.23, 29.88, -12201.23)},
+    {2325, 2349, "Chocolate Bar Battler",  "ChocQuest1",          2, CFrame.new(233.23, 29.88, -12201.23)},
+    {2350, 2374, "Sweet Thief",            "ChocQuest2",          1, CFrame.new(150.51, 30.69, -12774.50)},
+    {2375, 2399, "Candy Rebel",            "ChocQuest2",          2, CFrame.new(150.51, 30.69, -12774.50)},
+    {2400, 2424, "Candy Pirate",           "CandyQuest1",         1, CFrame.new(-1150.04, 20.38, -14446.33)},
+    {2425, 2449, "Snow Demon",             "CandyQuest1",         2, CFrame.new(-1150.04, 20.38, -14446.33)},
+    {2450, 2474, "Isle Outlaw",            "TikiQuest1",          1, CFrame.new(-16547.75, 61.14, -173.41)},
+    {2475, 2499, "Island Boy",             "TikiQuest1",          2, CFrame.new(-16547.75, 61.14, -173.41)},
+    {2500, 2524, "Sun-kissed Warrior",     "TikiQuest2",          1, CFrame.new(-16539.08, 55.69, 1051.57)},
+    {2525, 2549, "Isle Champion",          "TikiQuest2",          2, CFrame.new(-16539.08, 55.69, 1051.57)},
+    {2550, 2574, "Serpent Hunter",         "TikiQuest3",          1, CFrame.new(-16668.03, 105.32, 1568.60)},
+    {2575, 2599, "Skull Slayer",           "TikiQuest3",          2, CFrame.new(-16668.03, 105.32, 1568.60)},
+
+    -- SUBMERGED ISLAND
+    {2600, 2624, "Reef Bandit",            "SubmergedQuest1",     1, CFrame.new(10882.26, -2086.32, 10034.23)},
+    {2625, 2649, "Coral Pirate",           "SubmergedQuest1",     2, CFrame.new(10882.26, -2086.32, 10034.23)},
+    {2650, 2674, "Sea Chanter",            "SubmergedQuest2",     1, CFrame.new(10882.26, -2086.32, 10034.23)},
+    {2675, 2699, "Ocean Prophet",          "SubmergedQuest2",     2, CFrame.new(10882.26, -2086.32, 10034.23)},
+    {2700, 2724, "High Disciple",          "SubmergedQuest3",     1, CFrame.new(9636.52, -1992.20, 9609.53)},
+    {2725, 2800, "Grand Devotee",          "SubmergedQuest3",     2, CFrame.new(9636.52, -1992.20, 9609.53)},
+}
+
+
+--=========================================================
+-- MOB AREA DATABASE V1.8
+-- Khi mob chưa được stream/load vào workspace.Enemies,
+-- script bay tới bãi quái trước thay vì đứng chờ tại NPC quest.
+--=========================================================
+
+local MOB_SPAWNS = {
+    -- SEA 1
+    ["Bandit"] = CFrame.new(1145, 17, 1634),
+    ["Monkey"] = CFrame.new(-1496, 39, 35),
+    ["Gorilla"] = CFrame.new(-1237, 7, -486),
+    ["Pirate"] = CFrame.new(-1115, 14, 3938),
+    ["Brute"] = CFrame.new(-1145, 15, 4350),
+    ["Desert Bandit"] = CFrame.new(984, 16, 4418),
+    ["Desert Officer"] = CFrame.new(1547, 14, 4382),
+    ["Snow Bandit"] = CFrame.new(1356, 106, -1328),
+    ["Snowman"] = CFrame.new(1219, 138, -1488),
+    ["Chief Petty Officer"] = CFrame.new(-4931, 66, 4122),
+    ["Sky Bandit"] = CFrame.new(-4956, 365, -2908),
+    ["Dark Master"] = CFrame.new(-5148, 439, -2333),
+    ["Prisoner"] = CFrame.new(4937, 1, 650),
+    ["Dangerous Prisoner"] = CFrame.new(5100, 1, 1056),
+    ["Toga Warrior"] = CFrame.new(-1873, 49, -2914),
+    ["Gladiator"] = CFrame.new(-1521, 81, -3066),
+    ["Military Soldier"] = CFrame.new(-5369, 61, 8556),
+    ["Military Spy"] = CFrame.new(-5787, 76, 8652),
+    ["Fishman Warrior"] = CFrame.new(60844, 98, 1298),
+    ["Fishman Commando"] = CFrame.new(61738, 64, 1434),
+    ["God's Guard"] = CFrame.new(-4628, 867, -1931),
+    ["Shanda"] = CFrame.new(-7685, 5601, -441),
+    ["Royal Squad"] = CFrame.new(-7685, 5607, -1443),
+    ["Royal Soldier"] = CFrame.new(-7828, 5607, -1744),
+    ["Galley Pirate"] = CFrame.new(5589, 45, 3996),
+    ["Galley Captain"] = CFrame.new(5678, 93, 4967),
+
+    -- SEA 2
+    ["Raider"] = CFrame.new(-737, 39, 2393),
+    ["Mercenary"] = CFrame.new(-874, 141, 1312),
+    ["Swan Pirate"] = CFrame.new(878, 122, 1235),
+    ["Factory Staff"] = CFrame.new(295, 73, -56),
+    ["Marine Lieutenant"] = CFrame.new(-2489, 85, -3152),
+    ["Marine Captain"] = CFrame.new(-2335, 80, -3246),
+    ["Zombie"] = CFrame.new(-5536, 101, -836),
+    ["Vampire"] = CFrame.new(-6033, 7, -1317),
+    ["Snow Trooper"] = CFrame.new(478, 402, -5362),
+    ["Winter Warrior"] = CFrame.new(1157, 430, -5188),
+    ["Lab Subordinate"] = CFrame.new(-5782, 42, -4484),
+    ["Horned Warrior"] = CFrame.new(-6406, 24, -5805),
+    ["Magma Ninja"] = CFrame.new(-5428, 78, -5959),
+    ["Lava Pirate"] = CFrame.new(-5270, 42, -4800),
+    ["Ship Deckhand"] = CFrame.new(1198, 126, 33031),
+    ["Ship Engineer"] = CFrame.new(918, 44, 32787),
+    ["Ship Steward"] = CFrame.new(915, 130, 33419),
+    ["Ship Officer"] = CFrame.new(916, 181, 33335),
+    ["Arctic Warrior"] = CFrame.new(6038, 29, -6231),
+    ["Snow Lurker"] = CFrame.new(5518, 61, -6829),
+    ["Sea Soldier"] = CFrame.new(-3030, 191, -9860),
+    ["Water Fighter"] = CFrame.new(-3437, 291, -10503),
+
+    -- SEA 3
+    ["Pirate Millionaire"] = CFrame.new(81, 44, 5725),
+    ["Pistol Billionaire"] = CFrame.new(-237, 217, 6006),
+    ["Dragon Crew Warrior"] = CFrame.new(6302, 105, -1083),
+    ["Dragon Crew Archer"] = CFrame.new(6831, 442, 447),
+    ["Hydra Enforcer"] = CFrame.new(5825, 683, 705),
+    ["Venomous Assailant"] = CFrame.new(5009, 664, -41),
+    ["Marine Commodore"] = CFrame.new(2447, 73, -7470),
+    ["Marine Rear Admiral"] = CFrame.new(3671, 161, -6932),
+    ["Fishman Raider"] = CFrame.new(-10560, 332, -8466),
+    ["Fishman Captain"] = CFrame.new(-10993, 332, -8940),
+    ["Forest Pirate"] = CFrame.new(-13479, 333, -7905),
+    ["Mythological Pirate"] = CFrame.new(-13545, 470, -6917),
+    ["Jungle Pirate"] = CFrame.new(-12107, 332, -10549),
+    ["Musketeer Pirate"] = CFrame.new(-13286, 392, -9769),
+    ["Reborn Skeleton"] = CFrame.new(-8760, 142, 6039),
+    ["Living Zombie"] = CFrame.new(-10144, 140, 5932),
+    ["Demonic Soul"] = CFrame.new(-9507, 172, 6158),
+    ["Posessed Mummy"] = CFrame.new(-9577, 6, 6223),
+    ["Peanut Scout"] = CFrame.new(-2124, 123, -10435),
+    ["Peanut President"] = CFrame.new(-2124, 123, -10435),
+    ["Ice Cream Chef"] = CFrame.new(-641, 127, -11062),
+    ["Ice Cream Commander"] = CFrame.new(-641, 127, -11062),
+    ["Cookie Crafter"] = CFrame.new(-2365, 38, -12099),
+    ["Cake Guard"] = CFrame.new(-1651, 38, -12308),
+    ["Baking Staff"] = CFrame.new(-1870, 38, -12938),
+    ["Head Baker"] = CFrame.new(-1926, 88, -12850),
+    ["Cocoa Warrior"] = CFrame.new(231, 23, -12194),
+    ["Chocolate Bar Battler"] = CFrame.new(231, 23, -12194),
+    ["Sweet Thief"] = CFrame.new(71, 77, -12632),
+    ["Candy Rebel"] = CFrame.new(134, 77, -12882),
+    ["Candy Pirate"] = CFrame.new(-1438, 17, -14386),
+    ["Snow Demon"] = CFrame.new(-916, 17, -14639),
+    ["Isle Outlaw"] = CFrame.new(-16122, 11, -257),
+    ["Island Boy"] = CFrame.new(-16736, 21, -132),
+    ["Sun-kissed Warrior"] = CFrame.new(-16414, 55, 1054),
+    ["Isle Champion"] = CFrame.new(-16787, 21, 992),
+    ["Serpent Hunter"] = CFrame.new(-16655, 105, 1580),
+    ["Skull Slayer"] = CFrame.new(-16655, 105, 1580),
+
+    -- Submerged: dùng quest area làm điểm stream fallback.
+    ["Reef Bandit"] = CFrame.new(10882, -2086, 10034),
+    ["Coral Pirate"] = CFrame.new(10882, -2086, 10034),
+    ["Sea Chanter"] = CFrame.new(10882, -2086, 10034),
+    ["Ocean Prophet"] = CFrame.new(10882, -2086, 10034),
+    ["High Disciple"] = CFrame.new(9637, -1992, 9610),
+    ["Grand Devotee"] = CFrame.new(9637, -1992, 9610),
+}
+
+local TravelState = {
+    Tween = nil,
+    Active = false,
+    MovementLock = false,
+    TargetKey = nil,
+    TargetPosition = nil,
+    Token = 0,
+
+    -- Giữ thông tin lần vừa tới bãi để Farm không lập tức
+    -- quay về NPC quest khi GUI/streaming đang load.
+    ArrivedAt = 0,
+    LastArrivalKey = nil,
+    ArrivalGrace = 4.0,
+
+    -- Chậm + chia đoạn để giảm rubber-band khi đi xa.
+    Speed = 225,
+    VerticalSpeed = 250,
+    SegmentLength = 180,
+
+    SafeBaseY = 220,
+    SafeClearance = 135,
+    ArrivalHold = 0.55,
+
+    Humanoid = nil,
+}
+
+local function cancelTravel()
+    TravelState.Token += 1
+
+    if TravelState.Tween then
+        pcall(function()
+            TravelState.Tween:Cancel()
+        end)
+    end
+
+    TravelState.Tween = nil
+    TravelState.Active = false
+    TravelState.MovementLock = false
+    TravelState.TargetKey = nil
+    TravelState.TargetPosition = nil
+
+    pcall(function()
+        if TravelState.Humanoid
+            and TravelState.Humanoid.Parent then
+
+            TravelState.Humanoid.AutoRotate = true
+            TravelState.Humanoid.Sit = false
+        end
+    end)
+
+    TravelState.Humanoid = nil
+end
+
+local function flatFacingCFrame(position, sourceCFrame)
+    local look = sourceCFrame.LookVector
+    local flat = Vector3.new(look.X, 0, look.Z)
+
+    if flat.Magnitude < 0.01 then
+        flat = Vector3.new(0, 0, -1)
+    else
+        flat = flat.Unit
+    end
+
+    return CFrame.lookAt(
+        position,
+        position + flat
+    )
+end
+
+local function tweenTravelPhase(
+    root,
+    targetCFrame,
+    speed,
+    token
+)
+    if not root
+        or not root.Parent
+        or token ~= TravelState.Token then
+        return false
+    end
+
+    local distance =
+        (root.Position - targetCFrame.Position).Magnitude
+
+    if distance <= 2 then
+        root.CFrame = targetCFrame
+        return true
+    end
+
+    local duration = math.clamp(
+        distance / speed,
+        0.12,
+        8
+    )
+
+    local tween = TweenService:Create(
+        root,
+        TweenInfo.new(
+            duration,
+            Enum.EasingStyle.Linear,
+            Enum.EasingDirection.Out
+        ),
+        {CFrame = targetCFrame}
+    )
+
+    TravelState.Tween = tween
+    tween:Play()
+
+    local playbackState = tween.Completed:Wait()
+
+    if token ~= TravelState.Token then
+        return false
+    end
+
+    return playbackState == Enum.PlaybackState.Completed
+end
+
+local function travelHorizontalSegments(
+    root,
+    destination,
+    safeY,
+    token
+)
+    local from = Vector3.new(
+        root.Position.X,
+        safeY,
+        root.Position.Z
+    )
+
+    local to = Vector3.new(
+        destination.X,
+        safeY,
+        destination.Z
+    )
+
+    local delta = to - from
+    local distance = delta.Magnitude
+
+    if distance <= 2 then
+        return true
+    end
+
+    local segments = math.max(
+        1,
+        math.ceil(distance / TravelState.SegmentLength)
+    )
+
+    for i = 1, segments do
+        if token ~= TravelState.Token or not root.Parent then
+            return false
+        end
+
+        local p = from:Lerp(to, i / segments)
+        local ok = tweenTravelPhase(
+            root,
+            flatFacingCFrame(p, root.CFrame),
+            TravelState.Speed,
+            token
+        )
+
+        if not ok then
+            return false
+        end
+
+        -- nhường 1 nhịp nhỏ để vị trí được đồng bộ trước đoạn kế.
+        task.wait(0.035)
+    end
+
+    return true
+end
+
+local function trySpecialEntrance(q)
+    if not q then
+        return
+    end
+
+    local remote = getCommRemote and getCommRemote() or nil
+    if not remote then
+        local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+        remote = remotes and (
+            remotes:FindFirstChild("CommF_")
+            or remotes:FindFirstChild("CommF")
+        )
+    end
+
+    if not remote then
+        return
+    end
+
+    local mob = q.Mob
+
+    pcall(function()
+        if mob == "Fishman Warrior"
+            or mob == "Fishman Commando" then
+
+            remote:InvokeServer(
+                "requestEntrance",
+                Vector3.new(61163.8516, 11.6797, 1819.7842)
+            )
+
+        elseif mob == "God's Guard" then
+            remote:InvokeServer(
+                "requestEntrance",
+                Vector3.new(-4607.8228, 872.5425, -1667.5569)
+            )
+
+        elseif mob == "Shanda"
+            or mob == "Royal Squad"
+            or mob == "Royal Soldier" then
+
+            remote:InvokeServer(
+                "requestEntrance",
+                Vector3.new(-7894.6177, 5547.1416, -380.2912)
+            )
+
+        elseif mob == "Ship Deckhand"
+            or mob == "Ship Engineer"
+            or mob == "Ship Steward"
+            or mob == "Ship Officer" then
+
+            remote:InvokeServer(
+                "requestEntrance",
+                Vector3.new(923.2125, 126.9760, 32852.8320)
+            )
+        end
+    end)
+end
+
+local function nameMatchesMob(modelName, wantedName)
+    if not modelName or not wantedName then
+        return false
+    end
+
+    return string.find(
+        string.lower(modelName),
+        string.lower(wantedName),
+        1,
+        true
+    ) ~= nil
+end
+
+local function findReplicatedMobRoot(wantedName)
+    if not wantedName then
+        return nil
+    end
+
+    -- Current scripts normally look at top-level ReplicatedStorage
+    -- only as presence/proxy fallback.
+    for _, obj in ipairs(ReplicatedStorage:GetChildren()) do
+        if obj:IsA("Model")
+            and nameMatchesMob(
+                obj.Name,
+                wantedName
+            ) then
+
+            local root =
+                obj:FindFirstChild("HumanoidRootPart")
+                or obj:FindFirstChild("Torso")
+                or obj.PrimaryPart
+
+            if root and root:IsA("BasePart") then
+                return root
+            end
+        end
+    end
+
+    return nil
+end
+
+local function getMobAreaCFrame(q, fromPosition)
+    if not q then
+        return nil
+    end
+
+    -- PRIMARY: known CFrameMon/static spawn.
+    local staticArea =
+        MOB_SPAWNS[q.Mob]
+
+    if staticArea then
+        return staticArea
+    end
+
+    -- FALLBACK only when static data is missing.
+    local proxyRoot =
+        findReplicatedMobRoot(q.Mob)
+
+    return proxyRoot and proxyRoot.CFrame
+        or nil
+end
+
+local function moveNearProxySpawn(root, q)
+    if not root or not root.Parent or not q then
+        return false
+    end
+
+    local staticArea =
+        MOB_SPAWNS[q.Mob]
+
+    local targetCFrame =
+        staticArea
+
+    -- Proxy is allowed only if it is reasonably close
+    -- to the known static spawn. This rejects template models at 0,0,0.
+    local proxyRoot =
+        findReplicatedMobRoot(q.Mob)
+
+    if proxyRoot and staticArea then
+        local proxyDistanceToStatic =
+            (
+                proxyRoot.Position
+                - staticArea.Position
+            ).Magnitude
+
+        if proxyDistanceToStatic <= 650 then
+            targetCFrame =
+                proxyRoot.CFrame
+        end
+
+    elseif proxyRoot and not staticArea then
+        targetCFrame =
+            proxyRoot.CFrame
+    end
+
+    if not targetCFrame then
+        return false
+    end
+
+    local targetPosition =
+        targetCFrame.Position
+        + Vector3.new(
+            0,
+            math.max(FarmState.HoverHeight, 20),
+            0
+        )
+
+    local distance =
+        (root.Position - targetPosition).Magnitude
+
+    if distance > 22 and distance < 260 then
+        pcall(function()
+            root.CFrame =
+                flatFacingCFrame(
+                    targetPosition,
+                    root.CFrame
+                )
+
+            root.AssemblyLinearVelocity =
+                Vector3.zero
+            root.AssemblyAngularVelocity =
+                Vector3.zero
+        end)
+    end
+
+    return true
+end
+
+local function travelToMobArea(root, humanoid, q)
+    if not root or not root.Parent or not q then
+        return false
+    end
+
+    local area = getMobAreaCFrame(q, root.Position)
+    if not area then
+        return false
+    end
+
+    -- Đang bay đúng bãi thì không tạo tween mới.
+    if TravelState.Active
+        and TravelState.TargetKey == q.Mob then
+        return false
+    end
+
+    trySpecialEntrance(q)
+    task.wait(0.10)
+
+    if not root.Parent then
+        return false
+    end
+
+    local finalPosition =
+        area.Position
+        + Vector3.new(
+            0,
+            math.max(FarmState.HoverHeight, 24),
+            0
+        )
+
+    local finalCFrame =
+        flatFacingCFrame(finalPosition, root.CFrame)
+
+    if (root.Position - finalPosition).Magnitude <= 90 then
+        return true
+    end
+
+    cancelTravel()
+    TravelState.Token += 1
+
+    local myToken = TravelState.Token
+
+    TravelState.Active = true
+    TravelState.MovementLock = true
+    TravelState.TargetKey = q.Mob
+    TravelState.TargetPosition = finalPosition
+    TravelState.Humanoid = humanoid
+
+    pcall(function()
+        if humanoid then
+            humanoid.Sit = false
+            humanoid.AutoRotate = false
+        end
+        root.AssemblyLinearVelocity = Vector3.zero
+        root.AssemblyAngularVelocity = Vector3.zero
+    end)
+
+    task.spawn(function()
+        local startPosition = root.Position
+        local horizontalDistance =
+            (
+                Vector2.new(startPosition.X, startPosition.Z)
+                - Vector2.new(finalPosition.X, finalPosition.Z)
+            ).Magnitude
+
+        local useSafeRoute = horizontalDistance > 300
+        local ok = true
+
+        if useSafeRoute then
+            local safeY = math.max(
+                TravelState.SafeBaseY,
+                startPosition.Y + TravelState.SafeClearance,
+                finalPosition.Y + TravelState.SafeClearance
+            )
+
+            -- 1) ASCEND
+            local ascendPosition = Vector3.new(
+                startPosition.X,
+                safeY,
+                startPosition.Z
+            )
+
+            ok = tweenTravelPhase(
+                root,
+                flatFacingCFrame(ascendPosition, root.CFrame),
+                TravelState.VerticalSpeed,
+                myToken
+            )
+
+            -- 2) CRUISE theo đoạn ngắn
+            if ok then
+                ok = travelHorizontalSegments(
+                    root,
+                    finalPosition,
+                    safeY,
+                    myToken
+                )
+            end
+
+            -- 3) DESCEND
+            if ok then
+                ok = tweenTravelPhase(
+                    root,
+                    finalCFrame,
+                    TravelState.VerticalSpeed,
+                    myToken
+                )
+            end
+        else
+            ok = tweenTravelPhase(
+                root,
+                finalCFrame,
+                TravelState.Speed,
+                myToken
+            )
+        end
+
+        if myToken ~= TravelState.Token then
+            return
+        end
+
+        if ok then
+            -- Giữ vị trí B ngắn để Farm/Quest không giành CFrame ngay khi vừa tới.
+            local holdUntil = os.clock() + TravelState.ArrivalHold
+
+            while os.clock() < holdUntil
+                and myToken == TravelState.Token
+                and root.Parent do
+                pcall(function()
+                    root.CFrame = finalCFrame
+                    root.AssemblyLinearVelocity = Vector3.zero
+                    root.AssemblyAngularVelocity = Vector3.zero
+                end)
+                task.wait(0.06)
+            end
+        end
+
+        if myToken ~= TravelState.Token then
+            return
+        end
+
+        TravelState.Tween = nil
+        TravelState.Active = false
+        TravelState.MovementLock = false
+
+        if ok then
+            TravelState.ArrivedAt = os.clock()
+            TravelState.LastArrivalKey = q.Mob
+        end
+
+        pcall(function()
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+            if humanoid and humanoid.Parent then
+                humanoid.AutoRotate = true
+                humanoid.Sit = false
+            end
+        end)
+    end)
+
+    return false
+end
+
+local function getCharacter()
+    local character = Player.Character
+    if not character or not character.Parent then
+        return nil
+    end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoid or humanoid.Health <= 0 or not root then
+        return nil
+    end
+
+    return character, humanoid, root
+end
+
+local function getPlayerLevel()
+    local data = Player:FindFirstChild("Data")
+    local level = data and data:FindFirstChild("Level")
+
+    if level and tonumber(level.Value) then
+        return tonumber(level.Value)
+    end
+
+    return 1
+end
+
+local function resolveQuest(level)
+    for _, q in ipairs(QUESTS) do
+        if level >= q[1] and level <= q[2] then
+            return {
+                Min = q[1],
+                Max = q[2],
+                Mob = q[3],
+                Quest = q[4],
+                Index = q[5],
+                CFrame = q[6],
+            }
+        end
+    end
+
+    return nil
+end
+
+local function getCommRemote()
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    if not remotes then
+        return nil
+    end
+
+    return remotes:FindFirstChild("CommF_")
+        or remotes:FindFirstChild("CommF")
+end
+
+local function getQuestGui()
+    local playerGui = Player:FindFirstChildOfClass("PlayerGui")
+        or Player:FindFirstChild("PlayerGui")
+
+    local main = playerGui and playerGui:FindFirstChild("Main")
+    return main and main:FindFirstChild("Quest")
+end
+
+local function getQuestTitle()
+    local quest = getQuestGui()
+    if not quest then
+        return ""
+    end
+
+    local texts = {}
+
+    -- Ưu tiên path cũ nếu vẫn còn.
+    pcall(function()
+        local direct = quest.Container.QuestTitle.Title.Text
+        if type(direct) == "string" and direct ~= "" then
+            table.insert(texts, direct)
+        end
+    end)
+
+    -- Fallback mạnh hơn: gom text trong toàn bộ Quest GUI.
+    -- Blox Fruits đổi layout vẫn còn bắt được tên mob.
+    for _, obj in ipairs(quest:GetDescendants()) do
+        if obj:IsA("TextLabel")
+            or obj:IsA("TextButton")
+            or obj:IsA("TextBox") then
+
+            local ok, value = pcall(function()
+                return obj.Text
+            end)
+
+            if ok
+                and type(value) == "string"
+                and value ~= "" then
+
+                table.insert(texts, value)
+            end
+        end
+    end
+
+    return table.concat(texts, " | ")
+end
+
+local function isQuestVisible()
+    local quest = getQuestGui()
+    return quest and quest.Visible == true
+end
+
+local function questMatches(q)
+    if not q then
+        return false
+    end
+
+    local title = string.lower(getQuestTitle())
+    local mob = string.lower(q.Mob)
+
+    return title ~= "" and string.find(title, mob, 1, true) ~= nil
+end
+
+local function tryTravelToSubmerged(level)
+    if level < 2600 then
+        return
+    end
+
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    if not remotes then
+        return
+    end
+
+    local remote = remotes:FindFirstChild("RF/SubmarineWorkerSpeak")
+    if not remote then
+        return
+    end
+
+    pcall(function()
+        remote:InvokeServer("TravelToSubmergedIsland")
+    end)
+end
+
+local function getQuestEnemies(fromPosition, wantedName, maxTargets)
+    local enemiesFolder = workspace:FindFirstChild("Enemies")
+    if not enemiesFolder then
+        return {}
+    end
+
+    local wanted = wantedName and string.lower(wantedName) or nil
+    local found = {}
+
+    for _, enemy in ipairs(enemiesFolder:GetChildren()) do
+        if enemy:IsA("Model") then
+            local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+            local root =
+                enemy:FindFirstChild("HumanoidRootPart")
+                or enemy:FindFirstChild("Torso")
+
+            if humanoid and root and humanoid.Health > 0 then
+                local nameOK = true
+
+                if wanted then
+                    nameOK = string.find(
+                        string.lower(enemy.Name),
+                        wanted,
+                        1,
+                        true
+                    ) ~= nil
+                end
+
+                if nameOK then
+                    table.insert(found, {
+                        Enemy = enemy,
+                        Humanoid = humanoid,
+                        Root = root,
+                        Distance = (root.Position - fromPosition).Magnitude,
+                    })
+                end
+            end
+        end
+    end
+
+    table.sort(found, function(a, b)
+        return a.Distance < b.Distance
+    end)
+
+    local limit = math.min(maxTargets or #found, #found)
+    local result = {}
+
+    for i = 1, limit do
+        result[i] = found[i]
+    end
+
+    return result
+end
+
+--=========================================================
+-- QUEST KEY HELPER
+-- PHẢI nằm trước Stable Magnet vì getStableMagnetAnchor()
+-- gọi trực tiếp function này.
+--=========================================================
+
+local function getQuestKey(q)
+    if not q then
+        return nil
+    end
+
+    return table.concat({
+        tostring(q.Quest),
+        tostring(q.Index),
+        tostring(q.Mob),
+    }, "|")
+end
+
+local function tryExpandSimulationRadius()
+    pcall(function()
+        if type(sethiddenproperty) == "function" then
+            sethiddenproperty(Player, "SimulationRadius", math.huge)
+        elseif type(setsimulationradius) == "function" then
+            setsimulationradius(math.huge, math.huge)
+        end
+    end)
+end
+
+--=========================================================
+-- STABLE MAGNET V1.10.2
+--
+-- Lỗi cũ:
+--   anchor = enemyRoot.CFrame mỗi vòng.
+-- Khi nhiều NPC chồng vật lý, root của con chính bị đẩy lên.
+-- Player lại lấy root đó + HoverHeight => càng lúc càng bay cao.
+--
+-- Fix:
+--   * Chốt 1 anchor cố định cho mỗi quest/cụm.
+--   * Tắt collision của TOÀN BỘ BasePart NPC.
+--   * Không ChangeState(Physics).
+--   * Khôi phục WalkSpeed/JumpPower/AutoRotate khi reset.
+--=========================================================
+
+local MagnetState = {
+    QuestKey = nil,
+    AnchorCFrame = nil,
+    AnchorY = nil,
+
+    -- Multi-camp support.
+    CampSwitchDistance = 135,
+    CampKeepRadius = 105,
+    LastCampSwitch = 0,
+    CampSwitchCooldown = 0.45,
+    CampIndex = 1,
+
+    ModifiedHumanoids = setmetatable({}, {__mode = "k"}),
+}
+
+local function restoreMagnetHumanoids()
+    for humanoid, original in pairs(MagnetState.ModifiedHumanoids) do
+        if humanoid and humanoid.Parent then
+            pcall(function()
+                humanoid.WalkSpeed = original.WalkSpeed
+                humanoid.JumpPower = original.JumpPower
+                humanoid.AutoRotate = original.AutoRotate
+            end)
+        end
+    end
+
+    MagnetState.ModifiedHumanoids =
+        setmetatable({}, {__mode = "k"})
+end
+
+local function resetMagnet()
+    restoreMagnetHumanoids()
+
+    MagnetState.QuestKey = nil
+    MagnetState.AnchorCFrame = nil
+    MagnetState.AnchorY = nil
+    MagnetState.LastCampSwitch = 0
+    MagnetState.CampIndex = 1
+end
+
+local function makeFlatCFrame(position, sourceCFrame)
+    local look = sourceCFrame and sourceCFrame.LookVector
+        or Vector3.new(0, 0, -1)
+
+    local flat = Vector3.new(look.X, 0, look.Z)
+
+    if flat.Magnitude < 0.01 then
+        flat = Vector3.new(0, 0, -1)
+    else
+        flat = flat.Unit
+    end
+
+    return CFrame.lookAt(
+        position,
+        position + flat
+    )
+end
+
+local function getFixedMobAreaY(q, targets)
+    local area = q and getMobAreaCFrame(q)
+
+    if area then
+        return area.Position.Y
+    end
+
+    local primary = targets and targets[1]
+    local root = primary and primary.Root
+
+    if root and root.Parent then
+        return root.Position.Y
+    end
+
+    return nil
+end
+
+local function horizontalDistance(a, b)
+    return (
+        Vector2.new(a.X, a.Z)
+        - Vector2.new(b.X, b.Z)
+    ).Magnitude
+end
+
+local function targetNearCurrentCamp(targets)
+    if not MagnetState.AnchorCFrame
+        or type(targets) ~= "table" then
+
+        return false
+    end
+
+    local anchorPos =
+        MagnetState.AnchorCFrame.Position
+
+    for _, data in ipairs(targets) do
+        local root = data.Root
+
+        if root and root.Parent then
+            if horizontalDistance(
+                root.Position,
+                anchorPos
+            ) <= MagnetState.CampKeepRadius then
+
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+local function setCampAnchor(root)
+    if not root or not root.Parent then
+        return nil
+    end
+
+    -- Lock Y ONCE per camp.
+    -- This keeps the anti-sky-drift fix while allowing camps
+    -- with different heights to work correctly.
+    local fixedY = root.Position.Y
+
+    MagnetState.AnchorY = fixedY
+
+    local fixedPosition =
+        Vector3.new(
+            root.Position.X,
+            fixedY,
+            root.Position.Z
+        )
+
+    MagnetState.AnchorCFrame =
+        makeFlatCFrame(
+            fixedPosition,
+            root.CFrame
+        )
+
+    MagnetState.LastCampSwitch =
+        os.clock()
+
+    return MagnetState.AnchorCFrame
+end
+
+local function getStableMagnetAnchor(q, targets)
+    local qKey = getQuestKey(q)
+
+    if MagnetState.QuestKey ~= qKey then
+        resetMagnet()
+        MagnetState.QuestKey = qKey
+    end
+
+    local primary =
+        targets and targets[1]
+
+    local root =
+        primary and primary.Root
+
+    if not root or not root.Parent then
+        return MagnetState.AnchorCFrame
+    end
+
+    -- First camp.
+    if not MagnetState.AnchorCFrame then
+        return setCampAnchor(root)
+    end
+
+    local currentAnchor =
+        MagnetState.AnchorCFrame.Position
+
+    local primaryDistance =
+        horizontalDistance(
+            root.Position,
+            currentAnchor
+        )
+
+    local currentCampStillAlive =
+        targetNearCurrentCamp(targets)
+
+    -- IMPORTANT MULTI-CAMP FIX:
+    -- If camp A is cleared and the nearest live mob is in camp B,
+    -- release the old quest anchor and lock onto camp B.
+    if not currentCampStillAlive
+        and primaryDistance
+            >= MagnetState.CampSwitchDistance
+        and os.clock()
+            - MagnetState.LastCampSwitch
+            >= MagnetState.CampSwitchCooldown then
+
+        MagnetState.CampIndex += 1
+
+        return setCampAnchor(root)
+    end
+
+    return MagnetState.AnchorCFrame
+end
+
+local function clampAnchorToFixedY(anchorCFrame)
+    if not anchorCFrame or not MagnetState.AnchorY then
+        return anchorCFrame
+    end
+
+    local p = anchorCFrame.Position
+
+    return makeFlatCFrame(
+        Vector3.new(
+            p.X,
+            MagnetState.AnchorY,
+            p.Z
+        ),
+        anchorCFrame
+    )
+end
+
+local function magnetQuestEnemies(targets, anchorCFrame)
+    if not FarmState.MagnetEnabled
+        or not anchorCFrame
+        or type(targets) ~= "table" then
+
+        return
+    end
+
+    tryExpandSimulationRadius()
+
+    anchorCFrame = clampAnchorToFixedY(anchorCFrame)
+
+    if not anchorCFrame then
+        return
+    end
+
+    local fixedY = MagnetState.AnchorY
+        or anchorCFrame.Position.Y
+
+    for index, data in ipairs(targets) do
+        local enemy = data.Enemy
+        local humanoid = data.Humanoid
+        local root = data.Root
+
+        if enemy and enemy.Parent
+            and humanoid and humanoid.Health > 0
+            and root and root.Parent then
+
+            local horizontalDistance =
+                (
+                    Vector2.new(root.Position.X, root.Position.Z)
+                    - Vector2.new(
+                        anchorCFrame.Position.X,
+                        anchorCFrame.Position.Z
+                    )
+                ).Magnitude
+
+            if horizontalDistance <= FarmState.MagnetRadius then
+                pcall(function()
+                    if not MagnetState.ModifiedHumanoids[humanoid] then
+                        MagnetState.ModifiedHumanoids[humanoid] = {
+                            WalkSpeed = humanoid.WalkSpeed,
+                            JumpPower = humanoid.JumpPower,
+                            AutoRotate = humanoid.AutoRotate,
+                        }
+                    end
+
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                    humanoid.AutoRotate = false
+                    humanoid.Sit = false
+
+                    for _, part in ipairs(enemy:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                            part.AssemblyLinearVelocity = Vector3.zero
+                            part.AssemblyAngularVelocity = Vector3.zero
+                        end
+                    end
+
+                    local ringIndex = (index - 1) % 8
+                    local angle = math.rad(ringIndex * 45)
+                    local radius = index == 1 and 0 or 1.65
+
+                    local fixedPosition = Vector3.new(
+                        anchorCFrame.Position.X + math.cos(angle) * radius,
+                        fixedY,
+                        anchorCFrame.Position.Z + math.sin(angle) * radius
+                    )
+
+                    root.CFrame =
+                        makeFlatCFrame(
+                            fixedPosition,
+                            anchorCFrame
+                        )
+
+                    root.AssemblyLinearVelocity = Vector3.zero
+                    root.AssemblyAngularVelocity = Vector3.zero
+                end)
+            end
+        end
+    end
+end
+
+local function toolPriority(tool)
+    if not tool:IsA("Tool") then
+        return -1
+    end
+
+    local tip = string.lower(tostring(tool.ToolTip or ""))
+
+    if tip == "melee" or tip:find("melee", 1, true) then
+        return 300
+    end
+
+    if tip == "sword" or tip:find("sword", 1, true) then
+        return 200
+    end
+
+    return 100
+end
+
+local function findBestTool(character)
+    local equipped = character:FindFirstChildOfClass("Tool")
+    if equipped then
+        return equipped
+    end
+
+    local backpack = Player:FindFirstChildOfClass("Backpack")
+        or Player:FindFirstChild("Backpack")
+
+    if not backpack then
+        return nil
+    end
+
+    local bestTool = nil
+    local bestPriority = -1
+
+    for _, child in ipairs(backpack:GetChildren()) do
+        local priority = toolPriority(child)
+
+        if priority > bestPriority then
+            bestPriority = priority
+            bestTool = child
+        end
+    end
+
+    return bestTool
+end
+
+local function equipBestTool(character, humanoid)
+    local tool = findBestTool(character)
+
+    if tool and tool.Parent ~= character then
+        pcall(function()
+            humanoid:EquipTool(tool)
+        end)
+    end
+
+    if tool and tool.Parent == character then
+        return tool
+    end
+
+    return character:FindFirstChildOfClass("Tool")
+end
+
+--=========================================================
+-- ATTACK ENGINE V1.7 - MULTI MOB NET COMBAT
+--
+-- Không auto-click.
+-- Không cần đánh từng mob riêng lẻ.
+--
+-- Luồng:
+--   RegisterAttack:FireServer(delay)
+--   RegisterHit:FireServer(BasePart, OthersEnemies)
+--
+-- OthersEnemies = {
+--   {EnemyModel, HitPart},
+--   {EnemyModel, HitPart},
+--   ...
+-- }
+--=========================================================
+
+local MultiAttack = {
+    Ready = false,
+    Error = nil,
+    RegisterAttack = nil,
+    RegisterHit = nil,
+    LastAttack = 0,
+
+    -- Giá trị thực sẽ được startFarm() ép theo FastRemoteDelay.
+    Delay = 0.070,
+}
+
+local function initMultiAttack()
+    if MultiAttack.Ready then
+        return true
+    end
+
+    local modules = ReplicatedStorage:FindFirstChild("Modules")
+    local net = modules and modules:FindFirstChild("Net")
+
+    if not net then
+        MultiAttack.Error = "NO_MODULES_NET"
+        return false
+    end
+
+    local registerAttack = net:FindFirstChild("RE/RegisterAttack")
+    local registerHit = net:FindFirstChild("RE/RegisterHit")
+
+    if not registerAttack then
+        MultiAttack.Error = "NO_RE_REGISTER_ATTACK"
+        return false
+    end
+
+    if not registerHit then
+        MultiAttack.Error = "NO_RE_REGISTER_HIT"
+        return false
+    end
+
+    MultiAttack.RegisterAttack = registerAttack
+    MultiAttack.RegisterHit = registerHit
+    MultiAttack.Ready = true
+    MultiAttack.Error = nil
+
+    return true
+end
+
+local function getPreferredHitPart(enemy)
+    if not enemy or not enemy.Parent then
+        return nil
+    end
+
+    local preferred = {
+        "Head",
+        "HumanoidRootPart",
+        "UpperTorso",
+        "Torso",
+        "RightLowerLeg",
+        "LeftLowerLeg",
+    }
+
+    for _, name in ipairs(preferred) do
+        local part = enemy:FindFirstChild(name)
+        if part and part:IsA("BasePart") then
+            return part
+        end
+    end
+
+    return enemy:FindFirstChildWhichIsA("BasePart", true)
+end
+
+--=========================================================
+-- ATTACK V1.10.5
+--
+-- Combat/Fighting Style hiện tại có thể chứa LeftClickRemote.
+-- Với loại Tool này, Blox Fruits xử lý đòn đánh qua:
+--     Tool.LeftClickRemote:FireServer(direction, 1)
+--
+-- Nếu Tool không có LeftClickRemote:
+--     fallback RE/RegisterAttack + RE/RegisterHit.
+--
+-- Không VirtualUser / không auto-click màn hình.
+--=========================================================
+
+--=========================================================
+-- ATTACK V1.10.6 - ADAPTIVE COMBAT
+--
+-- Tự kiểm tra damage thật:
+--   LEFTCLICK_REMOTE không làm máu mob giảm sau vài lần
+--      -> tự chuyển NET_REGISTER_HIT.
+--   NET không gây damage
+--      -> thử lại LEFTCLICK_REMOTE.
+--
+-- Không VirtualUser / không auto-click màn hình.
+--=========================================================
+
+local AdaptiveCombat = {
+    Pending = nil,
+
+    LeftFail = 0,
+    NetFail = 0,
+
+    Preferred = "AUTO",
+    LastSwitch = 0,
+    SwitchCooldown = 1.2,
+
+    DamageCheckDelay = 0.16,
+    FailThreshold = 3,
+}
+
+local function getLeftClickRemote(tool)
+    if not tool then
+        return nil
+    end
+
+    local direct = tool:FindFirstChild("LeftClickRemote")
+
+    if direct and direct:IsA("RemoteEvent") then
+        return direct
+    end
+
+    for _, obj in ipairs(tool:GetDescendants()) do
+        if obj.Name == "LeftClickRemote"
+            and obj:IsA("RemoteEvent") then
+
+            return obj
+        end
+    end
+
+    return nil
+end
+
+local function collectAttackTargets(targetData, playerRoot)
+    local valid = {}
+    local others = {}
+    local basePart = nil
+
+    for _, data in ipairs(targetData) do
+        local enemy = data.Enemy
+        local humanoid = data.Humanoid
+
+        if enemy and enemy.Parent
+            and humanoid and humanoid.Health > 0 then
+
+            local part = getPreferredHitPart(enemy)
+            local root =
+                enemy:FindFirstChild("HumanoidRootPart")
+                or part
+
+            if part and root then
+                local distance =
+                    (part.Position - playerRoot.Position).Magnitude
+
+                if distance <= FarmState.HitDistance then
+                    basePart = basePart or part
+
+                    table.insert(valid, {
+                        Enemy = enemy,
+                        Humanoid = humanoid,
+                        Part = part,
+                        Root = root,
+                    })
+
+                    table.insert(others, {
+                        enemy,
+                        part,
+                    })
+                end
+            end
+        end
+    end
+
+    return valid, basePart, others
+end
+
+local function snapshotHealth(validTargets, backend)
+    -- Fast Attack có thể đánh nhiều lần trước khi đủ thời gian kiểm tra damage.
+    -- Không overwrite snapshot cũ; chờ evaluatePendingDamage() xử lý xong.
+    if AdaptiveCombat.Pending then
+        return
+    end
+
+    local snapshot = {}
+
+    for _, data in ipairs(validTargets) do
+        local humanoid = data.Humanoid
+
+        if humanoid and humanoid.Parent then
+            table.insert(snapshot, {
+                Humanoid = humanoid,
+                Health = humanoid.Health,
+            })
+        end
+    end
+
+    AdaptiveCombat.Pending = {
+        Backend = backend,
+        Time = os.clock(),
+        Targets = snapshot,
+    }
+end
+
+local function evaluatePendingDamage()
+    local pending = AdaptiveCombat.Pending
+
+    if not pending then
+        return nil
+    end
+
+    if os.clock() - pending.Time
+        < AdaptiveCombat.DamageCheckDelay then
+
+        return nil
+    end
+
+    AdaptiveCombat.Pending = nil
+
+    local damaged = false
+
+    for _, item in ipairs(pending.Targets) do
+        local humanoid = item.Humanoid
+
+        if humanoid and humanoid.Parent then
+            if humanoid.Health < item.Health
+                or humanoid.Health <= 0 then
+
+                damaged = true
+                break
+            end
+        end
+    end
+
+    if pending.Backend == "LEFTCLICK_REMOTE" then
+        if damaged then
+            AdaptiveCombat.LeftFail = 0
+            AdaptiveCombat.Preferred = "LEFT"
+        else
+            AdaptiveCombat.LeftFail += 1
+
+            if AdaptiveCombat.LeftFail
+                >= AdaptiveCombat.FailThreshold then
+
+                AdaptiveCombat.Preferred = "NET"
+                AdaptiveCombat.LastSwitch = os.clock()
+                AdaptiveCombat.LeftFail = 0
+            end
+        end
+
+    elseif pending.Backend == "MULTI_NET_HIT" then
+        if damaged then
+            AdaptiveCombat.NetFail = 0
+            AdaptiveCombat.Preferred = "NET"
+        else
+            AdaptiveCombat.NetFail += 1
+
+            if AdaptiveCombat.NetFail
+                >= AdaptiveCombat.FailThreshold then
+
+                AdaptiveCombat.Preferred = "LEFT"
+                AdaptiveCombat.LastSwitch = os.clock()
+                AdaptiveCombat.NetFail = 0
+            end
+        end
+    end
+
+    return damaged
+end
+
+local function attackWithLeftClickRemote(
+    leftClickRemote,
+    validTargets,
+    playerRoot
+)
+    if not leftClickRemote
+        or #validTargets == 0 then
+
+        return false, 0
+    end
+
+    local character = Player.Character
+
+    if not character then
+        return false, 0
+    end
+
+    local origin = playerRoot.Position
+
+    pcall(function()
+        origin = character:GetPivot().Position
+    end)
+
+    local hitCount = 0
+
+    -- Giới hạn remote spam.
+    local limit = math.min(#validTargets, 6)
+
+    for i = 1, limit do
+        local data = validTargets[i]
+        local targetRoot = data.Root
+
+        if targetRoot and targetRoot.Parent then
+            local delta =
+                targetRoot.Position - origin
+
+            if delta.Magnitude > 0.01 then
+                local ok = pcall(function()
+                    leftClickRemote:FireServer(
+                        delta.Unit,
+                        1
+                    )
+                end)
+
+                if ok then
+                    hitCount += 1
+                end
+            end
+        end
+    end
+
+    return hitCount > 0, hitCount
+end
+
+local function attackWithNetRemotes(
+    basePart,
+    others
+)
+    if not initMultiAttack() then
+        return false,
+            MultiAttack.Error or "NET_INIT_FAILED",
+            0
+    end
+
+    if not basePart or #others == 0 then
+        return false, "NO_TARGETS_IN_RANGE", 0
+    end
+
+    local attackOK = pcall(function()
+        -- 0.5 ổn định hơn 0 với RegisterAttack hiện tại.
+        MultiAttack.RegisterAttack:FireServer(0.5)
+    end)
+
+    if not attackOK then
+        return false, "REGISTER_ATTACK_FAILED", 0
+    end
+
+    task.wait()
+
+    local hitOK = pcall(function()
+        MultiAttack.RegisterHit:FireServer(
+            basePart,
+            others
+        )
+    end)
+
+    if not hitOK then
+        return false, "REGISTER_HIT_FAILED", 0
+    end
+
+    return true, "MULTI_NET_HIT", #others
+end
+
+local function useLeftBackend(
+    leftClickRemote,
+    validTargets,
+    playerRoot
+)
+    if not leftClickRemote then
+        return false, "NO_LEFTCLICK_REMOTE", 0
+    end
+
+    local ok, count =
+        attackWithLeftClickRemote(
+            leftClickRemote,
+            validTargets,
+            playerRoot
+        )
+
+    if ok then
+        snapshotHealth(
+            validTargets,
+            "LEFTCLICK_REMOTE"
+        )
+
+        return true, "LEFTCLICK_REMOTE", count
+    end
+
+    return false, "LEFTCLICK_FAILED", 0
+end
+
+local function useNetBackend(
+    validTargets,
+    basePart,
+    others
+)
+    local ok, backend, count =
+        attackWithNetRemotes(
+            basePart,
+            others
+        )
+
+    if ok then
+        snapshotHealth(
+            validTargets,
+            "MULTI_NET_HIT"
+        )
+    end
+
+    return ok, backend, count
+end
+
+local function multiMobAttack(tool, targetData, playerRoot)
+    if not tool or not tool.Parent then
+        return false, "NO_TOOL", 0
+    end
+
+    if not playerRoot then
+        return false, "NO_PLAYER_ROOT", 0
+    end
+
+    -- Đọc kết quả damage của lần đánh trước.
+    evaluatePendingDamage()
+
+    local now = os.clock()
+
+    if now - MultiAttack.LastAttack
+        < MultiAttack.Delay then
+
+        return false, "ATTACK_COOLDOWN", 0
+    end
+
+    local validTargets, basePart, others =
+        collectAttackTargets(
+            targetData,
+            playerRoot
+        )
+
+    if #validTargets == 0 then
+        return false, "NO_TARGETS_IN_RANGE", 0
+    end
+
+    MultiAttack.LastAttack = now
+
+    local leftClickRemote =
+        getLeftClickRemote(tool)
+
+    -- Nếu vừa switch backend, giữ lựa chọn đó một lúc
+    -- để có đủ thời gian kiểm tra damage thật.
+    local forced =
+        os.clock() - AdaptiveCombat.LastSwitch
+        < AdaptiveCombat.SwitchCooldown
+
+    --=====================================================
+    -- AUTO / LEFT preference
+    --=====================================================
+
+    if leftClickRemote
+        and AdaptiveCombat.Preferred ~= "NET" then
+
+        local ok, backend, count =
+            useLeftBackend(
+                leftClickRemote,
+                validTargets,
+                playerRoot
+            )
+
+        if ok then
+            return true, backend, count
+        end
+    end
+
+    --=====================================================
+    -- NET preference / fallback
+    --=====================================================
+
+    local netOK, netBackend, netCount =
+        useNetBackend(
+            validTargets,
+            basePart,
+            others
+        )
+
+    if netOK then
+        return true, netBackend, netCount
+    end
+
+    --=====================================================
+    -- NET fail -> thử LeftClick lần cuối nếu có.
+    --=====================================================
+
+    if leftClickRemote then
+        local ok, backend, count =
+            useLeftBackend(
+                leftClickRemote,
+                validTargets,
+                playerRoot
+            )
+
+        if ok then
+            return true, backend, count
+        end
+    end
+
+    return false,
+        netBackend or "ALL_ATTACK_BACKENDS_FAILED",
+        0
+end
+
+local function safeAttack(tool, targets, playerRoot)
+    return multiMobAttack(
+        tool,
+        targets,
+        playerRoot
+    )
+end
+
+local function moveToQuest(root, q)
+    if not root or not q then
+        return false
+    end
+
+    pcall(function()
+        root.AssemblyLinearVelocity = Vector3.zero
+        root.AssemblyAngularVelocity = Vector3.zero
+        root.CFrame = q.CFrame * CFrame.new(0, 2.5, 0)
+    end)
+
+    return (root.Position - q.CFrame.Position).Magnitude <= 20
+end
+
+local function requestQuest(q, root)
+    if not q or not root then
+        return false
+    end
+
+    -- Travel đang sở hữu CFrame: Quest không được kéo ngược về NPC.
+    if TravelState and TravelState.MovementLock then
+        return false
+    end
+
+    if os.clock() - FarmState.LastQuestAttempt < FarmState.QuestRetryDelay then
+        return false
+    end
+
+    FarmState.LastQuestAttempt = os.clock()
+
+    local level = getPlayerLevel()
+    tryTravelToSubmerged(level)
+
+    moveToQuest(root, q)
+    task.wait(0.22)
+
+    local remote = getCommRemote()
+    if not remote then
+        return false
+    end
+
+    local ok = pcall(function()
+        remote:InvokeServer("StartQuest", q.Quest, q.Index)
+    end)
+
+    task.wait(0.28)
+
+    if ok then
+        FarmState.ActiveQuestKey = getQuestKey(q)
+    end
+
+    return ok
+end
+
+local function abandonQuest()
+    FarmState.ActiveQuestKey = nil
+
+    local remote = getCommRemote()
+    if not remote then
+        return
+    end
+
+    pcall(function()
+        remote:InvokeServer("AbandonQuest")
+    end)
+end
+
+--=========================================================
+-- FARM UI
+--=========================================================
+
+local FarmPanel = Instance.new("Frame")
+FarmPanel.Size = UDim2.new(1, -24, 0, 128)
+FarmPanel.Position = UDim2.new(0, 12, 0, 12)
+FarmPanel.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+FarmPanel.BorderSizePixel = 0
+FarmPanel.Parent = FarmPage
+
+local FarmPanelCorner = Instance.new("UICorner")
+FarmPanelCorner.CornerRadius = UDim.new(0, 9)
+FarmPanelCorner.Parent = FarmPanel
+
+local FarmTitle = Instance.new("TextLabel")
+FarmTitle.Size = UDim2.new(1, -24, 0, 28)
+FarmTitle.Position = UDim2.new(0, 12, 0, 8)
+FarmTitle.BackgroundTransparency = 1
+FarmTitle.Text = "Auto Farm + Fast Attack"
+FarmTitle.TextColor3 = Color3.fromRGB(235, 235, 240)
+FarmTitle.TextSize = 15
+FarmTitle.Font = Enum.Font.GothamBold
+FarmTitle.TextXAlignment = Enum.TextXAlignment.Left
+FarmTitle.Parent = FarmPanel
+
+local FarmStatus = Instance.new("TextLabel")
+FarmStatus.Size = UDim2.new(1, -90, 0, 42)
+FarmStatus.Position = UDim2.new(0, 12, 0, 39)
+FarmStatus.BackgroundTransparency = 1
+FarmStatus.Text = "Trạng thái: Tắt"
+FarmStatus.TextColor3 = Color3.fromRGB(170, 170, 180)
+FarmStatus.TextSize = 12
+FarmStatus.Font = Enum.Font.Gotham
+FarmStatus.TextWrapped = true
+FarmStatus.TextXAlignment = Enum.TextXAlignment.Left
+FarmStatus.TextYAlignment = Enum.TextYAlignment.Top
+FarmStatus.Parent = FarmPanel
+
+local Toggle = Instance.new("TextButton")
+Toggle.Size = UDim2.new(0, 58, 0, 28)
+Toggle.Position = UDim2.new(1, -70, 0, 39)
+Toggle.BackgroundColor3 = Color3.fromRGB(65, 65, 75)
+Toggle.Text = "OFF"
+Toggle.TextColor3 = Color3.fromRGB(245, 245, 245)
+Toggle.TextSize = 12
+Toggle.Font = Enum.Font.GothamBold
+Toggle.BorderSizePixel = 0
+Toggle.Parent = FarmPanel
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(1, 0)
+ToggleCorner.Parent = Toggle
+
+local FarmInfo = Instance.new("TextLabel")
+FarmInfo.Size = UDim2.new(1, -24, 0, 34)
+FarmInfo.Position = UDim2.new(0, 12, 0, 86)
+FarmInfo.BackgroundTransparency = 1
+FarmInfo.Text = "Fast Attack • Travel 225 • Auto đổi nhiều bãi mob"
+FarmInfo.TextColor3 = Color3.fromRGB(135, 135, 145)
+FarmInfo.TextSize = 11
+FarmInfo.Font = Enum.Font.Gotham
+FarmInfo.TextWrapped = true
+FarmInfo.TextXAlignment = Enum.TextXAlignment.Left
+FarmInfo.Parent = FarmPanel
+
+local function updateToggleVisual()
+    Toggle.Text = FarmState.Enabled and "ON" or "OFF"
+
+    TweenService:Create(
+        Toggle,
+        TweenInfo.new(0.15),
+        {
+            BackgroundColor3 = FarmState.Enabled
+                and Color3.fromRGB(63, 122, 82)
+                or Color3.fromRGB(65, 65, 75)
+        }
+    ):Play()
+
+    if not FarmState.Enabled then
+        FarmStatus.Text = "Trạng thái: Tắt"
+    end
+end
+
+local function stopFarm()
+    FarmState.Enabled = false
+    FarmState.FastAttackActive = false
+    FarmState.Token += 1
+    FarmState.ActiveQuestKey = nil
+    FarmState.LastResolvedQuestKey = nil
+    FarmState.NoMobSince = 0
+    FarmState.LastNoMobQuest = nil
+    cancelTravel()
+    resetMagnet()
+
+    pcall(function()
+        local character = Player.Character
+        local humanoid = character
+            and character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid then
+            humanoid.AutoRotate = true
+        end
+    end)
+
+    updateToggleVisual()
+end
+
+local function startFarm()
+    if FarmState.Enabled then
+        return
+    end
+
+    FarmState.Enabled = true
+    FarmState.FastAttackActive = true
+    FarmState.Token += 1
+    FarmState.LastQuestAttempt = 0
+    FarmState.NoMobSince = 0
+    FarmState.LastNoMobQuest = nil
+
+    -- Bật Farm là Fast Attack bật ngay, không cần toggle riêng.
+    pcall(function()
+        MultiAttack.Delay = FarmState.FastRemoteDelay
+        MultiAttack.LastAttack = 0
+
+        AdaptiveCombat.Pending = nil
+        AdaptiveCombat.LeftFail = 0
+        AdaptiveCombat.NetFail = 0
+        AdaptiveCombat.Preferred = "AUTO"
+    end)
+
+    local myToken = FarmState.Token
+    local lastAttack = 0
+
+    updateToggleVisual()
+
+    if GameReady then
+        FarmStatus.Text =
+            "Farm ON • Fast Attack ON • Đang khởi động..."
+    else
+        FarmStatus.Text =
+            "Farm ON • chờ game load..."
+    end
+
+    -- Scope sanity check để tránh lỗi kiểu V1.10.2 quay lại.
+    if type(getQuestKey) ~= "function" then
+        FarmStatus.Text = "Farm lỗi: getQuestKey scope"
+        FarmState.Enabled = false
+        updateToggleVisual()
+        return
+    end
+
+    if type(resetMagnet) ~= "function"
+        or type(getStableMagnetAnchor) ~= "function" then
+
+        FarmStatus.Text = "Farm lỗi: Magnet engine scope"
+        FarmState.Enabled = false
+        updateToggleVisual()
+        return
+    end
+
+    task.spawn(function()
+        local function farmLoop()
+            while FarmState.Enabled
+                and FarmState.Token == myToken
+                and ScreenGui.Parent do
+
+                if not GameReady then
+                    FarmStatus.Text =
+                        "Farm ON • đang chờ CommF_/Backpack..."
+
+                    task.wait(0.20)
+                    continue
+                end
+
+                local character, humanoid, playerRoot = getCharacter()
+
+                -- HARD TRAVEL LOCK: trong lúc bay, Farm/Quest không được chạm CFrame.
+                if TravelState and TravelState.MovementLock then
+                    task.wait(0.06)
+                    continue
+                end
+
+                -- Auto nhặt fruit tạm giữ quyền di chuyển.
+                -- Tránh Farm kéo nhân vật ngược lại trong lúc pickup.
+                if FruitState and FruitState.Busy then
+                    task.wait(0.08)
+                    continue
+                end
+
+                if not character then
+                    FarmStatus.Text = "Trạng thái: Đợi nhân vật..."
+                    task.wait(0.25)
+                    continue
+                end
+
+                local level = getPlayerLevel()
+                local q = resolveQuest(level)
+
+                if q then
+                    local resolvedKey = getQuestKey(q)
+
+                    -- Level vừa vượt mốc quest:
+                    -- reset cụm cũ + bỏ quest cũ ngay.
+                    if FarmState.LastResolvedQuestKey
+                        and FarmState.LastResolvedQuestKey ~= resolvedKey then
+
+                        cancelTravel()
+                        resetMagnet()
+                        FarmState.ActiveQuestKey = nil
+
+                        if isQuestVisible() then
+                            FarmStatus.Text =
+                                "Đổi quest theo level → " .. q.Mob
+
+                            abandonQuest()
+                            task.wait(0.30)
+                            FarmState.LastResolvedQuestKey = resolvedKey
+                            continue
+                        end
+                    end
+
+                    FarmState.LastResolvedQuestKey = resolvedKey
+                end
+
+                if not q then
+                    FarmStatus.Text =
+                        "Không có dữ liệu quest cho Lv." .. tostring(level)
+
+                    task.wait(0.5)
+                    continue
+                end
+
+                --=================================================
+                -- 1) AUTO QUEST
+                --=================================================
+
+                if not isQuestVisible() then
+                    local inArrivalGrace =
+                        TravelState.LastArrivalKey == q.Mob
+                        and (
+                            os.clock()
+                            - (TravelState.ArrivedAt or 0)
+                        ) < TravelState.ArrivalGrace
+
+                    if inArrivalGrace then
+                        -- Sau khi vừa sang đảo mới, GUI/streaming có thể
+                        -- trễ vài giây. Không teleport ngược về quest NPC.
+                        FarmStatus.Text =
+                            "Đã tới " .. q.Mob ..
+                            " | chờ quest/mob sync..."
+
+                        moveNearProxySpawn(
+                            playerRoot,
+                            q
+                        )
+
+                        task.wait(0.12)
+                        continue
+                    end
+
+                    cancelTravel()
+                    resetMagnet()
+
+                    FarmStatus.Text =
+                        "Nhận quest Lv." .. tostring(level) ..
+                        ": " .. q.Mob
+
+                    requestQuest(q, playerRoot)
+
+                    task.wait(0.18)
+                    continue
+                end
+
+                if not questMatches(q) then
+                    cancelTravel()
+                    resetMagnet()
+
+                    FarmStatus.Text =
+                        "Quest sai → nhận lại: " .. q.Mob
+
+                    abandonQuest()
+
+                    task.wait(0.35)
+                    continue
+                end
+
+                --=================================================
+                -- 2) TÌM MOB ĐÚNG QUEST
+                --=================================================
+
+                local targets = getQuestEnemies(
+                    playerRoot.Position,
+                    q.Mob,
+                    FarmState.MaxTargets
+                )
+
+                --=================================================
+                -- 3) MOB CHƯA LOAD -> BAY TỚI BÃI MOB
+                --=================================================
+
+                if #targets == 0 then
+                    if FarmState.LastNoMobQuest ~= q.Mob then
+                        FarmState.LastNoMobQuest = q.Mob
+                        FarmState.NoMobSince = os.clock()
+                    elseif FarmState.NoMobSince == 0 then
+                        FarmState.NoMobSince = os.clock()
+                    end
+
+                    local mobArea =
+                        getMobAreaCFrame(
+                            q,
+                            playerRoot.Position
+                        )
+
+                    if mobArea then
+                        local distance =
+                            (
+                                playerRoot.Position
+                                - mobArea.Position
+                            ).Magnitude
+
+                        if distance > 105 then
+                            FarmStatus.Text =
+                                "Bay tới " .. q.Mob ..
+                                " | " ..
+                                tostring(
+                                    math.floor(distance)
+                                ) ..
+                                " studs"
+
+                            travelToMobArea(
+                                playerRoot,
+                                humanoid,
+                                q
+                            )
+                        else
+                            cancelTravel()
+
+                            moveNearProxySpawn(
+                                playerRoot,
+                                q
+                            )
+
+                            local waitTime =
+                                os.clock()
+                                - FarmState.NoMobSince
+
+                            FarmStatus.Text =
+                                "Đã tới bãi " ..
+                                q.Mob ..
+                                " | chờ mob " ..
+                                tostring(
+                                    math.floor(waitTime)
+                                ) ..
+                                "s"
+
+                            -- Sau 5s vẫn chưa thấy mob:
+                            -- nudge quanh CFrameMon để ép streaming/spawn vùng.
+                            if waitTime >= 5 then
+                                local phase =
+                                    math.floor(waitTime) % 4
+
+                                local offsets = {
+                                    Vector3.new(35, 20, 0),
+                                    Vector3.new(-35, 20, 0),
+                                    Vector3.new(0, 20, 35),
+                                    Vector3.new(0, 20, -35),
+                                }
+
+                                local nudge =
+                                    mobArea.Position
+                                    + offsets[phase + 1]
+
+                                pcall(function()
+                                    playerRoot.CFrame =
+                                        flatFacingCFrame(
+                                            nudge,
+                                            playerRoot.CFrame
+                                        )
+                                end)
+                            end
+                        end
+                    else
+                        FarmStatus.Text =
+                            "Thiếu CFrame bãi: " ..
+                            q.Mob
+                    end
+
+                    task.wait(0.12)
+                    continue
+                end
+
+                FarmState.NoMobSince = 0
+                FarmState.LastNoMobQuest = nil
+
+                --=================================================
+                -- 4) MOB ĐÃ LOAD -> DỪNG BAY, GOM QUÁI
+                --=================================================
+
+                cancelTravel()
+
+                local primary = targets[1]
+
+                if not primary then
+                    task.wait(0.08)
+                    continue
+                end
+
+                local enemy = primary.Enemy
+                local enemyHumanoid = primary.Humanoid
+                local enemyRoot = primary.Root
+
+                if not enemy
+                    or not enemy.Parent
+                    or not enemyHumanoid
+                    or enemyHumanoid.Health <= 0
+                    or not enemyRoot
+                    or not enemyRoot.Parent then
+
+                    task.wait(0.08)
+                    continue
+                end
+
+                local magnetCFrame =
+                    getStableMagnetAnchor(q, targets)
+
+                if not magnetCFrame then
+                    FarmStatus.Text =
+                        "Đang khóa điểm farm: " .. q.Mob
+
+                    task.wait(0.08)
+                    continue
+                end
+
+                magnetQuestEnemies(
+                    targets,
+                    magnetCFrame
+                )
+
+                --=================================================
+                -- 5) ĐỨNG TRÊN CỤM QUÁI
+                --=================================================
+
+                --=================================================
+                -- UPRIGHT HOVER FIX V1.10.1
+                --
+                -- Không dùng lookAt() nhìn thẳng xuống mob nữa,
+                -- vì nó làm cả avatar bị xoay nằm ngang.
+                -- Chỉ lấy hướng ngang XZ để nhân vật luôn đứng thẳng.
+                --=================================================
+
+                magnetCFrame =
+                    clampAnchorToFixedY(magnetCFrame)
+
+                local mobPosition = Vector3.new(
+                    magnetCFrame.Position.X,
+                    MagnetState.AnchorY
+                        or magnetCFrame.Position.Y,
+                    magnetCFrame.Position.Z
+                )
+
+                local flatLook = Vector3.new(
+                    magnetCFrame.LookVector.X,
+                    0,
+                    magnetCFrame.LookVector.Z
+                )
+
+                if flatLook.Magnitude < 0.01 then
+                    flatLook = Vector3.new(0, 0, -1)
+                else
+                    flatLook = flatLook.Unit
+                end
+
+                -- Đứng cao + lệch nhẹ ra sau mob.
+                local desiredY =
+                    mobPosition.Y + FarmState.HoverHeight
+
+                local maxAllowedY =
+                    mobPosition.Y + FarmState.MaxPlayerAboveAnchor
+
+                desiredY = math.min(
+                    desiredY,
+                    maxAllowedY
+                )
+
+                local farmPosition =
+                    Vector3.new(
+                        mobPosition.X,
+                        desiredY,
+                        mobPosition.Z
+                    )
+                    - flatLook * FarmState.BackOffset
+
+                -- Nhìn về phía mob NHƯNG giữ cùng độ cao Y.
+                -- => chỉ quay yaw, không pitch xuống dưới.
+                local flatTarget = Vector3.new(
+                    mobPosition.X,
+                    farmPosition.Y,
+                    mobPosition.Z
+                )
+
+                local targetCFrame
+
+                if (flatTarget - farmPosition).Magnitude > 0.05 then
+                    targetCFrame = CFrame.lookAt(
+                        farmPosition,
+                        flatTarget
+                    )
+                else
+                    targetCFrame = CFrame.new(
+                        farmPosition,
+                        farmPosition + flatLook
+                    )
+                end
+
+                pcall(function()
+                    if humanoid then
+                        humanoid.AutoRotate = false
+                        humanoid.Sit = false
+                    end
+
+                    -- Chỉ reset vận tốc nếu thực sự bị đẩy,
+                    -- giảm kiểu rung do physics bị ép mỗi vòng.
+                    if playerRoot.AssemblyLinearVelocity.Magnitude > 2 then
+                        playerRoot.AssemblyLinearVelocity =
+                            Vector3.zero
+                    end
+
+                    if playerRoot.AssemblyAngularVelocity.Magnitude > 0.5 then
+                        playerRoot.AssemblyAngularVelocity =
+                            Vector3.zero
+                    end
+
+                    -- Tránh spam lại CFrame nếu đã ở gần đúng vị trí.
+                    local positionError =
+                        (playerRoot.Position - farmPosition).Magnitude
+
+                    local currentLook = Vector3.new(
+                        playerRoot.CFrame.LookVector.X,
+                        0,
+                        playerRoot.CFrame.LookVector.Z
+                    )
+
+                    local wantedLook = Vector3.new(
+                        targetCFrame.LookVector.X,
+                        0,
+                        targetCFrame.LookVector.Z
+                    )
+
+                    local rotationNeedsUpdate = true
+
+                    if currentLook.Magnitude > 0.01
+                        and wantedLook.Magnitude > 0.01 then
+
+                        currentLook = currentLook.Unit
+                        wantedLook = wantedLook.Unit
+
+                        rotationNeedsUpdate =
+                            currentLook:Dot(wantedLook) < 0.985
+                    end
+
+                    if positionError > 0.65
+                        or rotationNeedsUpdate then
+
+                        playerRoot.CFrame = targetCFrame
+                    end
+                end)
+
+                --=================================================
+                -- 6) EQUIP + MULTI HIT
+                --=================================================
+
+                pcall(function()
+                    local maxY =
+                        mobPosition.Y
+                        + FarmState.MaxPlayerAboveAnchor
+
+                    if playerRoot.Position.Y > maxY + 1 then
+                        playerRoot.CFrame = targetCFrame
+                        playerRoot.AssemblyLinearVelocity =
+                            Vector3.zero
+                        playerRoot.AssemblyAngularVelocity =
+                            Vector3.zero
+                    end
+                end)
+
+                local tool =
+                    equipBestTool(character, humanoid)
+
+                local now = os.clock()
+
+                if tool
+                    and FarmState.FastAttackActive
+                    and (now - lastAttack)
+                        >= FarmState.AttackDelay then
+
+                    lastAttack = now
+
+                    local ok, backend, hitCount =
+                        safeAttack(
+                            tool,
+                            targets,
+                            playerRoot
+                        )
+
+                    if ok then
+                        FarmStatus.Text =
+                            "FAST | Lv." .. tostring(level) ..
+                            " | " .. q.Mob ..
+                            " | Bãi " ..
+                            tostring(MagnetState.CampIndex) ..
+                            " | x" ..
+                            tostring(hitCount or 0) ..
+                            " | " .. tostring(backend)
+                    elseif backend ~= "ATTACK_COOLDOWN" then
+                        FarmStatus.Text =
+                            "Combat: " .. tostring(backend) ..
+                            " | Mob: " .. tostring(#targets)
+                    end
+
+                elseif not tool then
+                    FarmStatus.Text =
+                        "Không tìm thấy Tool để đánh"
+                end
+
+                task.wait(FarmState.UpdateDelay)
+            end
+        end
+
+        -- Nếu có lỗi runtime, không để toggle chết im.
+        local ok, err = xpcall(
+            farmLoop,
+            function(message)
+                return tostring(message)
+            end
+        )
+
+        if not ok then
+            FarmStatus.Text =
+                "Farm lỗi: " .. tostring(err)
+
+            warn(
+                "[AXIOM FARM ERROR]",
+                tostring(err)
+            )
+
+            FarmState.Enabled = false
+            FarmState.FastAttackActive = false
+            FarmState.Token += 1
+            cancelTravel()
+            resetMagnet()
+
+            pcall(function()
+                local character = Player.Character
+                local humanoid = character
+                    and character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid then
+                    humanoid.AutoRotate = true
+                end
+            end)
+
+            updateToggleVisual()
+        end
+    end)
+end
+
+Toggle.MouseButton1Click:Connect(function()
+    if FarmState.Enabled then
+        stopFarm()
+    else
+        startFarm()
+    end
+end)
+
+ScreenGui.Destroying:Connect(function()
+    FarmState.Enabled = false
+    FarmState.FastAttackActive = false
+    FarmState.Token += 1
+    FarmState.ActiveQuestKey = nil
+    FarmState.LastResolvedQuestKey = nil
+    cancelTravel()
+    resetMagnet()
+end)
+
+--=========================================================
+-- DRAG SYSTEM
+--=========================================================
+
+local dragging = false
+local dragStart
+local startPos
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
+
+        local delta = input.Position - dragStart
+
+        Main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = false
+    end
+end)
+
+--=========================================================
+-- MINIMIZE SYSTEM
+--=========================================================
+
+local minimized = false
+local originalSize = Main.Size
+
+Minimize.MouseButton1Click:Connect(function()
+    minimized = not minimized
+
+    if minimized then
+        Sidebar.Visible = false
+        Content.Visible = false
+
+        TweenService:Create(
+            Main,
+            TweenInfo.new(0.2),
+            {Size = UDim2.new(0, 560, 0, 45)}
+        ):Play()
+    else
+        TweenService:Create(
+            Main,
+            TweenInfo.new(0.2),
+            {Size = originalSize}
+        ):Play()
+
+        task.delay(0.2, function()
+            Sidebar.Visible = true
+            Content.Visible = true
+        end)
+    end
+end)
+
+Close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+
+--=========================================================
+-- UI LAYER NORMALIZER V1.22.2
+-- Một số executor Android render child ZIndex thấp hơn parent background.
+-- Chuẩn hóa toàn bộ nội dung tab sau khi tất cả panel đã được tạo.
+--=========================================================
+
+local function normalizePageLayers(page)
+    if not page then
+        return
+    end
+
+    pcall(function()
+        page.Visible = page.Visible
+        page.ZIndex = 2
+    end)
+
+    for _, obj in ipairs(page:GetDescendants()) do
+        if obj:IsA("GuiObject") then
+            pcall(function()
+                if obj.ZIndex < 3 then
+                    obj.ZIndex = 3
+                end
+            end)
+        end
+    end
+end
+
+for _, page in pairs(tabs) do
+    normalizePageLayers(page)
+end
+
+-- Content chỉ làm nền, luôn thấp hơn page content.
+pcall(function()
+    Content.ZIndex = 1
+end)
+
+-- Sidebar/tab button vẫn nổi trên nền.
+pcall(function()
+    Sidebar.ZIndex = 2
+end)
+
+for _, button in pairs(tabButtons) do
+    pcall(function()
+        button.ZIndex = 3
+    end)
+end
+
+-- Ép lại Farm sau khi normalize để tránh executor giữ state Visible cũ.
+switchTab("Farm")
+
+print("[AXIOM] UI LAYERS NORMALIZED")
+
+print("[AXIOM] V1.22.2 UI LAYER FIX loaded.")
