@@ -1,0 +1,667 @@
+--==========================================================
+-- DORA HUB UI - V1
+-- Mobile + PC
+-- UI Framework / Executor Ready
+--==========================================================
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+--==========================================================
+-- CONFIG
+--==========================================================
+
+local HUB_NAME = "Dora Hub"
+local HUB_VERSION = "v1.0"
+
+-- Doraemon decal found on Roblox Creator Store
+local DORAEMON_IMAGE =
+    "rbxthumb://type=Asset&id=73726113&w=150&h=150"
+
+--==========================================================
+-- REMOVE OLD UI
+--==========================================================
+
+pcall(function()
+    local old = game:GetService("CoreGui"):FindFirstChild("DoraHub")
+    if old then
+        old:Destroy()
+    end
+end)
+
+pcall(function()
+    local old = LocalPlayer.PlayerGui:FindFirstChild("DoraHub")
+    if old then
+        old:Destroy()
+    end
+end)
+
+--==========================================================
+-- SCREEN GUI
+--==========================================================
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DoraHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local success = pcall(function()
+    ScreenGui.Parent = game:GetService("CoreGui")
+end)
+
+if not success then
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+--==========================================================
+-- COLORS
+--==========================================================
+
+local COLORS = {
+    Background = Color3.fromRGB(15, 17, 22),
+    Sidebar = Color3.fromRGB(20, 23, 29),
+    Card = Color3.fromRGB(27, 30, 38),
+
+    Blue = Color3.fromRGB(45, 160, 255),
+    BlueDark = Color3.fromRGB(25, 105, 200),
+
+    White = Color3.fromRGB(245, 245, 245),
+    Gray = Color3.fromRGB(155, 160, 175),
+    DarkGray = Color3.fromRGB(80, 85, 100),
+
+    Green = Color3.fromRGB(65, 210, 120),
+    Red = Color3.fromRGB(255, 80, 90)
+}
+
+--==========================================================
+-- HELPER
+--==========================================================
+
+local function Corner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 8)
+    corner.Parent = parent
+    return corner
+end
+
+local function Stroke(parent, color, thickness, transparency)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color or COLORS.Blue
+    stroke.Thickness = thickness or 1
+    stroke.Transparency = transparency or 0
+    stroke.Parent = parent
+    return stroke
+end
+
+local function Tween(object, time, properties)
+    local tween = TweenService:Create(
+        object,
+        TweenInfo.new(
+            time,
+            Enum.EasingStyle.Quart,
+            Enum.EasingDirection.Out
+        ),
+        properties
+    )
+
+    tween:Play()
+    return tween
+end
+
+--==========================================================
+-- MAIN WINDOW
+--==========================================================
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 550, 0, 350)
+Main.Position = UDim2.new(0.5, -275, 0.5, -175)
+Main.BackgroundColor3 = COLORS.Background
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.Parent = ScreenGui
+
+Corner(Main, 14)
+Stroke(Main, Color3.fromRGB(55, 65, 85), 1, 0.3)
+
+--==========================================================
+-- TOP BAR
+--==========================================================
+
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 58)
+TopBar.BackgroundColor3 = COLORS.Sidebar
+TopBar.BorderSizePixel = 0
+TopBar.Parent = Main
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.Name = "DoraemonAvatar"
+Avatar.Size = UDim2.new(0, 42, 0, 42)
+Avatar.Position = UDim2.new(0, 10, 0.5, -21)
+Avatar.BackgroundColor3 = COLORS.Blue
+Avatar.BorderSizePixel = 0
+Avatar.Image = DORAEMON_IMAGE
+Avatar.ScaleType = Enum.ScaleType.Crop
+Avatar.Parent = TopBar
+
+Corner(Avatar, 21)
+Stroke(Avatar, COLORS.Blue, 2, 0)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 250, 0, 26)
+Title.Position = UDim2.new(0, 62, 0, 8)
+Title.BackgroundTransparency = 1
+Title.Text = HUB_NAME
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextColor3 = COLORS.White
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TopBar
+
+local Version = Instance.new("TextLabel")
+Version.Size = UDim2.new(0, 250, 0, 18)
+Version.Position = UDim2.new(0, 62, 0, 32)
+Version.BackgroundTransparency = 1
+Version.Text = HUB_VERSION .. "  •  Doraemon Edition"
+Version.Font = Enum.Font.Gotham
+Version.TextSize = 11
+Version.TextColor3 = COLORS.Gray
+Version.TextXAlignment = Enum.TextXAlignment.Left
+Version.Parent = TopBar
+
+local Minimize = Instance.new("TextButton")
+Minimize.Size = UDim2.new(0, 36, 0, 36)
+Minimize.Position = UDim2.new(1, -82, 0.5, -18)
+Minimize.BackgroundColor3 = COLORS.Card
+Minimize.Text = "—"
+Minimize.TextColor3 = COLORS.White
+Minimize.TextSize = 20
+Minimize.Font = Enum.Font.GothamBold
+Minimize.BorderSizePixel = 0
+Minimize.Parent = TopBar
+Corner(Minimize, 8)
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 36, 0, 36)
+Close.Position = UDim2.new(1, -42, 0.5, -18)
+Close.BackgroundColor3 = COLORS.Card
+Close.Text = "×"
+Close.TextColor3 = COLORS.White
+Close.TextSize = 23
+Close.Font = Enum.Font.GothamBold
+Close.BorderSizePixel = 0
+Close.Parent = TopBar
+Corner(Close, 8)
+
+--==========================================================
+-- SIDEBAR
+--==========================================================
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 145, 1, -58)
+Sidebar.Position = UDim2.new(0, 0, 0, 58)
+Sidebar.BackgroundColor3 = COLORS.Sidebar
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = Main
+
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.PaddingTop = UDim.new(0, 10)
+SidebarPadding.PaddingLeft = UDim.new(0, 9)
+SidebarPadding.PaddingRight = UDim.new(0, 9)
+SidebarPadding.Parent = Sidebar
+
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Padding = UDim.new(0, 7)
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Parent = Sidebar
+
+--==========================================================
+-- CONTENT
+--==========================================================
+
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, -145, 1, -58)
+Content.Position = UDim2.new(0, 145, 0, 58)
+Content.BackgroundTransparency = 1
+Content.Parent = Main
+
+local Pages = {}
+
+local function CreatePage(name)
+    local page = Instance.new("ScrollingFrame")
+    page.Name = name
+    page.Size = UDim2.new(1, -20, 1, -20)
+    page.Position = UDim2.new(0, 10, 0, 10)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = COLORS.Blue
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.Visible = false
+    page.Parent = Content
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 8)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = page
+
+    Pages[name] = page
+    return page
+end
+
+local MainPage = CreatePage("Main")
+local PlayerPage = CreatePage("Player")
+local TeleportPage = CreatePage("Teleport")
+local MiscPage = CreatePage("Misc")
+local SettingsPage = CreatePage("Settings")
+
+MainPage.Visible = true
+
+local function AddTitle(page, text)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 32)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 20
+    label.TextColor3 = COLORS.White
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = page
+    return label
+end
+
+local function AddButton(page, name, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -5, 0, 44)
+    button.BackgroundColor3 = COLORS.Card
+    button.BorderSizePixel = 0
+    button.Text = "   " .. name
+    button.Font = Enum.Font.GothamMedium
+    button.TextSize = 14
+    button.TextColor3 = COLORS.White
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.AutoButtonColor = false
+    button.Parent = page
+    Corner(button, 9)
+
+    button.MouseEnter:Connect(function()
+        Tween(button, 0.15, {BackgroundColor3 = Color3.fromRGB(35, 42, 55)})
+    end)
+
+    button.MouseLeave:Connect(function()
+        Tween(button, 0.15, {BackgroundColor3 = COLORS.Card})
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        Tween(button, 0.08, {BackgroundColor3 = COLORS.BlueDark})
+        task.delay(0.1, function()
+            Tween(button, 0.15, {BackgroundColor3 = COLORS.Card})
+        end)
+        if callback then
+            task.spawn(callback)
+        end
+    end)
+
+    return button
+end
+
+local function AddToggle(page, name, default, callback)
+    local state = default or false
+
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1, -5, 0, 44)
+    holder.BackgroundColor3 = COLORS.Card
+    holder.BorderSizePixel = 0
+    holder.Parent = page
+    Corner(holder, 9)
+
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1, -70, 1, 0)
+    text.Position = UDim2.new(0, 13, 0, 0)
+    text.BackgroundTransparency = 1
+    text.Text = name
+    text.Font = Enum.Font.GothamMedium
+    text.TextSize = 14
+    text.TextColor3 = COLORS.White
+    text.TextXAlignment = Enum.TextXAlignment.Left
+    text.Parent = holder
+
+    local switch = Instance.new("TextButton")
+    switch.Size = UDim2.new(0, 48, 0, 24)
+    switch.Position = UDim2.new(1, -59, 0.5, -12)
+    switch.BackgroundColor3 = state and COLORS.Blue or Color3.fromRGB(60, 64, 75)
+    switch.BorderSizePixel = 0
+    switch.Text = ""
+    switch.Parent = holder
+    Corner(switch, 12)
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 18, 0, 18)
+    dot.Position = state and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+    dot.BackgroundColor3 = COLORS.White
+    dot.BorderSizePixel = 0
+    dot.Parent = switch
+    Corner(dot, 9)
+
+    local function Update()
+        state = not state
+        Tween(switch, 0.2, {
+            BackgroundColor3 = state and COLORS.Blue or Color3.fromRGB(60, 64, 75)
+        })
+        Tween(dot, 0.2, {
+            Position = state and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+        })
+        if callback then
+            task.spawn(function()
+                callback(state)
+            end)
+        end
+    end
+
+    switch.MouseButton1Click:Connect(Update)
+
+    holder.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Update()
+        end
+    end)
+
+    return holder
+end
+
+local function Notify(titleText, message, duration)
+    duration = duration or 3
+
+    local Notification = Instance.new("Frame")
+    Notification.Size = UDim2.new(0, 310, 0, 72)
+    Notification.Position = UDim2.new(1, 330, 1, -90)
+    Notification.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
+    Notification.BorderSizePixel = 0
+    Notification.Parent = ScreenGui
+    Corner(Notification, 10)
+    Stroke(Notification, Color3.fromRGB(70, 75, 90), 1, 0.3)
+
+    local Icon = Instance.new("ImageLabel")
+    Icon.Size = UDim2.new(0, 48, 0, 48)
+    Icon.Position = UDim2.new(0, 11, 0.5, -24)
+    Icon.BackgroundColor3 = COLORS.Blue
+    Icon.BorderSizePixel = 0
+    Icon.Image = DORAEMON_IMAGE
+    Icon.ScaleType = Enum.ScaleType.Crop
+    Icon.Parent = Notification
+    Corner(Icon, 24)
+
+    local NotificationTitle = Instance.new("TextLabel")
+    NotificationTitle.Size = UDim2.new(1, -105, 0, 23)
+    NotificationTitle.Position = UDim2.new(0, 68, 0, 11)
+    NotificationTitle.BackgroundTransparency = 1
+    NotificationTitle.Text = titleText
+    NotificationTitle.TextColor3 = COLORS.White
+    NotificationTitle.TextSize = 13
+    NotificationTitle.Font = Enum.Font.GothamBold
+    NotificationTitle.TextXAlignment = Enum.TextXAlignment.Left
+    NotificationTitle.Parent = Notification
+
+    local NotificationText = Instance.new("TextLabel")
+    NotificationText.Size = UDim2.new(1, -85, 0, 25)
+    NotificationText.Position = UDim2.new(0, 68, 0, 33)
+    NotificationText.BackgroundTransparency = 1
+    NotificationText.Text = message
+    NotificationText.TextColor3 = COLORS.Gray
+    NotificationText.TextSize = 12
+    NotificationText.Font = Enum.Font.Gotham
+    NotificationText.TextXAlignment = Enum.TextXAlignment.Left
+    NotificationText.Parent = Notification
+
+    local X = Instance.new("TextButton")
+    X.Size = UDim2.new(0, 24, 0, 24)
+    X.Position = UDim2.new(1, -30, 0, 6)
+    X.BackgroundTransparency = 1
+    X.Text = "×"
+    X.TextColor3 = COLORS.Gray
+    X.TextSize = 20
+    X.Font = Enum.Font.GothamBold
+    X.Parent = Notification
+
+    local closed = false
+
+    local function Remove()
+        if closed then return end
+        closed = true
+        Tween(Notification, 0.3, {Position = UDim2.new(1, 330, 1, -90)})
+        task.delay(0.35, function()
+            Notification:Destroy()
+        end)
+    end
+
+    X.MouseButton1Click:Connect(Remove)
+    Tween(Notification, 0.4, {Position = UDim2.new(1, -325, 1, -90)})
+    task.delay(duration, Remove)
+end
+
+local TabButtons = {}
+
+local function SwitchPage(pageName)
+    for name, page in pairs(Pages) do
+        page.Visible = name == pageName
+    end
+
+    for name, button in pairs(TabButtons) do
+        Tween(button, 0.15, {
+            BackgroundColor3 = name == pageName and COLORS.Blue or COLORS.Card
+        })
+    end
+end
+
+local function AddTab(name, icon)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Size = UDim2.new(1, 0, 0, 38)
+    button.BackgroundColor3 = name == "Main" and COLORS.Blue or COLORS.Card
+    button.BorderSizePixel = 0
+    button.Text = icon .. "  " .. name
+    button.TextColor3 = COLORS.White
+    button.TextSize = 13
+    button.Font = Enum.Font.GothamMedium
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.Parent = Sidebar
+    Corner(button, 8)
+
+    TabButtons[name] = button
+
+    button.MouseButton1Click:Connect(function()
+        SwitchPage(name)
+    end)
+
+    return button
+end
+
+AddTab("Main", "◆")
+AddTab("Player", "♟")
+AddTab("Teleport", "⌖")
+AddTab("Misc", "✦")
+AddTab("Settings", "⚙")
+
+AddTitle(MainPage, "Main")
+
+AddToggle(MainPage, "Auto Farm", false, function(value)
+    Notify(HUB_NAME, "Auto Farm: " .. tostring(value), 2)
+end)
+
+AddToggle(MainPage, "Auto Quest", false, function(value)
+    Notify(HUB_NAME, "Auto Quest: " .. tostring(value), 2)
+end)
+
+AddButton(MainPage, "Test Doraemon Notification", function()
+    Notify("Dora Hub", "Script loaded successfully!", 4)
+end)
+
+AddTitle(PlayerPage, "Player")
+
+AddToggle(PlayerPage, "Fast Attack", false, function(value)
+    print("Fast Attack:", value)
+end)
+
+AddToggle(PlayerPage, "No Clip", false, function(value)
+    print("No Clip:", value)
+end)
+
+AddToggle(PlayerPage, "Infinite Energy", false, function(value)
+    print("Infinite Energy:", value)
+end)
+
+AddTitle(TeleportPage, "Teleport")
+
+AddButton(TeleportPage, "Teleport Example", function()
+    Notify(HUB_NAME, "Teleport button clicked", 2)
+end)
+
+AddTitle(MiscPage, "Misc")
+
+AddToggle(MiscPage, "Anti AFK", false, function(value)
+    print("Anti AFK:", value)
+end)
+
+AddButton(MiscPage, "Rejoin", function()
+    Notify(HUB_NAME, "Rejoin function chưa được gắn.", 3)
+end)
+
+AddTitle(SettingsPage, "Settings")
+
+AddButton(SettingsPage, "Destroy UI", function()
+    ScreenGui:Destroy()
+end)
+
+local Floating = Instance.new("ImageButton")
+Floating.Name = "DoraemonButton"
+Floating.Size = UDim2.new(0, 56, 0, 56)
+Floating.Position = UDim2.new(0, 15, 0.5, -28)
+Floating.BackgroundColor3 = COLORS.Blue
+Floating.BorderSizePixel = 0
+Floating.Image = DORAEMON_IMAGE
+Floating.ScaleType = Enum.ScaleType.Crop
+Floating.Visible = false
+Floating.Parent = ScreenGui
+Corner(Floating, 28)
+Stroke(Floating, Color3.fromRGB(120, 210, 255), 2, 0)
+
+Minimize.MouseButton1Click:Connect(function()
+    Tween(Main, 0.25, {Size = UDim2.new(0, 0, 0, 0)})
+    task.wait(0.2)
+    Main.Visible = false
+    Floating.Visible = true
+    Floating.Size = UDim2.new(0, 0, 0, 0)
+    Tween(Floating, 0.25, {Size = UDim2.new(0, 56, 0, 56)})
+end)
+
+Floating.MouseButton1Click:Connect(function()
+    Tween(Floating, 0.2, {Size = UDim2.new(0, 0, 0, 0)})
+    task.wait(0.15)
+    Floating.Visible = false
+    Main.Visible = true
+    Main.Size = UDim2.new(0, 0, 0, 0)
+    Tween(Main, 0.3, {Size = UDim2.new(0, 550, 0, 350)})
+end)
+
+Close.MouseButton1Click:Connect(function()
+    Tween(Main, 0.25, {Size = UDim2.new(0, 0, 0, 0)})
+    task.wait(0.25)
+    ScreenGui:Destroy()
+end)
+
+do
+    local dragging = false
+    local dragInput
+    local dragStart
+    local startPosition
+
+    TopBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+
+            dragging = true
+            dragStart = input.Position
+            startPosition = Main.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    TopBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            Main.Position = UDim2.new(
+                startPosition.X.Scale,
+                startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale,
+                startPosition.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+do
+    local dragging = false
+    local startPos
+    local dragStart
+
+    Floating.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            dragging = true
+            dragStart = input.Position
+            startPos = Floating.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then return end
+
+        if input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseMovement then
+
+            local delta = input.Position - dragStart
+            Floating.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            dragging = false
+        end
+    end)
+end
+
+local finalSize = Main.Size
+Main.Size = UDim2.new(0, 0, 0, 0)
+Tween(Main, 0.45, {Size = finalSize})
+
+task.wait(0.5)
+
+Notify("Dora Hub", "Doraemon Hub Loaded!", 4)
+
+print("[Dora Hub] Loaded")
